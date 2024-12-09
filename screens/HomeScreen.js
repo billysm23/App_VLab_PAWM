@@ -1,18 +1,17 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  TouchableOpacity,
+import {
+  Animated,
   Dimensions,
+  Image,
   Platform,
-  Animated
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import MaskedView from '@react-native-masked-view/masked-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import GradientText from '../components/GradientText';
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,10 +38,15 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#1e293b', '#0f172a']}
-        style={styles.gradient}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="#1e293b"
+      />
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
       >
         <Animated.View 
           style={[
@@ -64,9 +68,9 @@ export default function HomeScreen({ navigation }) {
 
           {/* Text Content */}
           <View style={styles.textContainer}>
-            <GradientText
-              text="Unlock Your Full Potential in Computational Thinking"
-            />
+            <Text style={styles.title}>
+              Unlock Your Full Potential in Computational Thinking
+            </Text>
             <Text style={styles.subtitle}>
               Dive into our interactive virtual lab designed to enhance your
               Computational Thinking skills. Experience hands-on learning that
@@ -79,35 +83,37 @@ export default function HomeScreen({ navigation }) {
             style={styles.button}
             activeOpacity={0.8}
             onPress={() => {
-              // Button log
-              console.log('Get Started pressed but the developer hasn\'t made the redirect');
+              console.log('Get Started pressed but we hasn\'t made the redirect 😁');
             }}
           >
             <Text style={styles.buttonText}>Get Started</Text>
           </TouchableOpacity>
         </Animated.View>
-      </LinearGradient>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
+    backgroundColor: '#1e293b',
   },
-  gradient: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    minHeight: '100%',
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: Platform.OS === 'android' ? 24 : 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoContainer: {
-    width: width * 0.5,
+    width: Platform.OS === 'android' ? width * 0.4 : width * 0.5,
     aspectRatio: 1,
-    marginBottom: 30,
+    marginBottom: Platform.OS === 'android' ? 20 : 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -117,30 +123,40 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: Platform.OS === 'android' ? 30 : 40,
     maxWidth: 600,
     width: '100%',
+    paddingHorizontal: Platform.OS === 'android' ? 10 : 0,
   },
   title: {
-    fontSize: Math.min(28, width * 0.07),
+    fontSize: Platform.OS === 'android' 
+      ? Math.min(24, width * 0.06) 
+      : Math.min(28, width * 0.07),
     fontWeight: 'bold',
+    color: '#ffffff',
     textAlign: 'center',
     marginBottom: 16,
-    lineHeight: Math.min(34, width * 0.085),
+    lineHeight: Platform.OS === 'android'
+      ? Math.min(30, width * 0.075)
+      : Math.min(34, width * 0.085),
   },
   subtitle: {
-    fontSize: Math.min(16, width * 0.04),
+    fontSize: Platform.OS === 'android'
+      ? Math.min(14, width * 0.035)
+      : Math.min(16, width * 0.04),
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
-    lineHeight: Math.min(24, width * 0.06),
+    lineHeight: Platform.OS === 'android'
+      ? Math.min(20, width * 0.05)
+      : Math.min(24, width * 0.06),
     paddingHorizontal: 10,
   },
   button: {
     backgroundColor: '#60a5fa',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingHorizontal: Platform.OS === 'android' ? 24 : 32,
+    paddingVertical: Platform.OS === 'android' ? 12 : 16,
     borderRadius: 8,
-    elevation: 2,
+    elevation: Platform.OS === 'android' ? 4 : 2,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -148,12 +164,14 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    minWidth: 200,
+    minWidth: Platform.OS === 'android' ? 180 : 200,
     alignItems: 'center',
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: Math.min(16, width * 0.04),
+    fontSize: Platform.OS === 'android'
+      ? Math.min(14, width * 0.035)
+      : Math.min(16, width * 0.04),
     fontWeight: 'bold',
   },
 });

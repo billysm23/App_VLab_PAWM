@@ -1,12 +1,12 @@
-import 'react-native-gesture-handler'; 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet } from 'react-native';
-import SplashScreen from './src/components/SplashScreen';
-import HomeScreen from './src/screens/HomeScreen';
+import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import SplashScreen from './components/SplashScreen';
+import HomeScreen from './screens/HomeScreen';
 
 const Stack = createStackNavigator();
 

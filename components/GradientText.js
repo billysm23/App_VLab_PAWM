@@ -1,6 +1,7 @@
+// Sementara tidak jadi dipakai
 import React from 'react';
-import Svg, { LinearGradient, Text, Defs, Stop } from 'react-native-svg';
-import { View, Dimensions } from 'react-native';
+import { Dimensions, View } from 'react-native';
+import Svg, { Defs, LinearGradient, Stop, Text } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
