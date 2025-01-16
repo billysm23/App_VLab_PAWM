@@ -56,6 +56,12 @@ export default function LoginScreen({ navigation }) {
           {loading ? 'Loading...' : 'Login'}
         </Text>
       </TouchableOpacity>
+      <View style={styles.registerContainer}>
+        <Text style={styles.registerText}>Don't have an account? </Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.registerLink}>Register here</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -84,6 +90,19 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  registerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 16,
+    padding: 1,
+  },
+  registerText: {
+    color: '#94a3b8',
+  },
+  registerLink: {
+    color: '#60a5fa',
     fontWeight: 'bold',
   },
 });
