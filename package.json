@@ -9,12 +9,13 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "server": "nodemon server/app.js",
-    "dev": "concurrently \"npm run start\" \"npm run server\""
+    "dev": "node dev.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
-    "@react-navigation/native": "^6.1.6",
-    "@react-navigation/stack": "^6.3.16",
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/stack": "^6.4.1",
     "@supabase/supabase-js": "^2.39.3",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -40,7 +41,8 @@
     "@babel/core": "^7.20.0",
     "concurrently": "^8.2.2",
     "nodemon": "^3.0.3",
-    "react-native-svg-transformer": "^1.5.0"
+    "react-native-svg-transformer": "^1.5.0",
+    "wait-on": "^8.0.2"
   },
   "engines": {
     "node": ">=18.0.0"

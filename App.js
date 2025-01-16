@@ -7,6 +7,7 @@ import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import SplashScreen from './components/SplashScreen';
 import HomeScreen from './screens/HomeScreen';
+import LoginScreen from './screens/LoginScreen';
 
 const Stack = createStackNavigator();
 
@@ -39,7 +40,12 @@ export default function App() {
             },
             cardStyle: { backgroundColor: '#001F3F' }
           }}
-        >
+        initialRouteName="Login">
+          <Stack.Screen 
+            name="Login" 
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen 
             name="Home" 
             component={HomeScreen}
