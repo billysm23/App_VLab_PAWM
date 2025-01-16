@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import SplashScreen from './components/SplashScreen';
+import { ThemeProvider } from './contexts/ThemeContext';
 import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -25,43 +26,45 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <StatusBar style="light" />
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: '#001F3F',
-              elevation: 0,
-              shadowOpacity: 0,
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-            cardStyle: { backgroundColor: '#001F3F' }
-          }}
-        >
-          <Stack.Screen 
-            name="Home" 
-            component={HomeScreen}
-            options={{ 
-              headerShown: false
+    <ThemeProvider>
+      <GestureHandlerRootView style={styles.container}>
+        <StatusBar style="light" />
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: '#001F3F',
+                elevation: 0,
+                shadowOpacity: 0,
+              },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+              cardStyle: { backgroundColor: '#001F3F' }
             }}
-          />
-          <Stack.Screen 
-            name="Login" 
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="Register" 
-            component={RegisterScreen}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </GestureHandlerRootView>
+          >
+            <Stack.Screen 
+              name="Home" 
+              component={HomeScreen}
+              options={{ 
+                headerShown: false
+              }}
+            />
+            <Stack.Screen 
+              name="Login" 
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="Register" 
+              component={RegisterScreen}
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </GestureHandlerRootView>
+    </ThemeProvider>
   );
 }
 

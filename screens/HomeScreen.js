@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
   Animated,
@@ -12,10 +13,16 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useThemeColors } from '../components/theme';
+import ThemeToggle from '../components/ThemeToggle';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }) {
+  const { theme, toggleTheme } = useTheme();
+  const colors = useThemeColors(theme);
+
   // Animation values for interactive elements
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
@@ -38,13 +45,19 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { 
+      backgroundColor: colors.background,
+      backgroundImage: colors.backgroundGradient 
+    }]}>
       <StatusBar
-        barStyle="light-content"
-        backgroundColor="#1e293b"
+        barStyle={theme === 'dark' ? "light-content" : "dark-content"}
+        backgroundColor={colors.background}
       />
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        contentContainerStyle={[
+          styles.scrollContainer,
+          { backgroundColor: 'transparent' }
+        ]}
         bounces={false}
         showsVerticalScrollIndicator={false}
       >
@@ -57,8 +70,9 @@ export default function HomeScreen({ navigation }) {
             }
           ]}
         >
-          {/* Logo Section */}
-          <View style={styles.logoContainer}>
+          <View style={[styles.logoContainer, {
+            shadowColor: colors.shadowMd
+          }]}>
             <Image
               source={require('../assets/computer.png')}
               style={styles.logo}
@@ -66,30 +80,41 @@ export default function HomeScreen({ navigation }) {
             />
           </View>
 
-          {/* Text Content */}
           <View style={styles.textContainer}>
-            <Text style={styles.title}>
+            <Text style={[styles.title, { 
+              color: colors.text,
+              textShadow: colors.shadowSm
+            }]}>
               Unlock Your Full Potential in Computational Thinking
             </Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               Dive into our interactive virtual lab designed to enhance your
               Computational Thinking skills. Experience hands-on learning that
               prepares you for real-world challenges.
             </Text>
           </View>
 
-          {/* CTA Button */}
           <TouchableOpacity 
-            style={styles.button}
             activeOpacity={0.8}
             onPress={() => {
               navigation.navigate('Login');
+              console.log('Get Started pressed');
             }}
           >
-            <Text style={styles.buttonText}>Get Started</Text>
+            <LinearGradient
+              colors={colors.gradients.button.colors}
+              start={colors.gradients.button.start}
+              end={colors.gradients.button.end}
+              style={styles.button}
+            >
+            <Text style={[styles.buttonText, { color: colors.textLight }]}>
+              Get Started
+            </Text>
+            </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
+      <ThemeToggle />
     </SafeAreaView>
   );
 }
@@ -109,6 +134,7 @@ const styles = StyleSheet.create({
     padding: Platform.OS === 'android' ? 24 : 20,
     alignItems: 'center',
     justifyContent: 'center',
+    transition: 'background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
   },
   logoContainer: {
     width: Platform.OS === 'android' ? width * 0.4 : width * 0.5,
@@ -152,7 +178,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   button: {
-    backgroundColor: '#60a5fa',
     paddingHorizontal: Platform.OS === 'android' ? 24 : 32,
     paddingVertical: Platform.OS === 'android' ? 12 : 16,
     borderRadius: 8,
@@ -166,6 +191,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     minWidth: Platform.OS === 'android' ? 180 : 200,
     alignItems: 'center',
+    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
   },
   buttonText: {
     color: '#ffffff',
@@ -173,5 +199,12 @@ const styles = StyleSheet.create({
       ? Math.min(14, width * 0.035)
       : Math.min(16, width * 0.04),
     fontWeight: 'bold',
+  },
+  container: {
+    flex: 1,
+    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+  },
+  text: {
+    transition: 'color 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
   },
 });

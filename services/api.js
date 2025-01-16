@@ -48,4 +48,11 @@ export const login = async (email, password) => {
   });
 };
 
+export const updateTheme = async (theme) => {
+  return await apiRequest('/auth/theme', {
+    method: 'PUT',
+    body: JSON.stringify({ theme })
+  });
+};
+
 export default apiRequest;

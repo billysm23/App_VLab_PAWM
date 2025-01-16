@@ -393,3 +393,28 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
         next(error);
     }
 });
+
+exports.updateTheme = asyncHandler(async (req, res, next) => {
+    try {
+        const { theme } = req.body;
+
+        if (!theme) {
+            throw new AppError(
+                'Theme is required',
+                400,
+                ErrorCodes.MISSING_FIELD
+            );
+        }
+
+        const updatedUser = await User.updateTheme(req.user.id, theme);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                theme: updatedUser.theme
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+});

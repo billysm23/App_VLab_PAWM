@@ -132,6 +132,41 @@ class User {
     static async comparePassword(plainPassword, hashedPassword) {
         return bcrypt.compare(plainPassword, hashedPassword);
     }
+
+    static async updateTheme(userId, theme) {
+        try {
+            if (!['light', 'dark'].includes(theme)) {
+                throw new AppError(
+                    'Invalid theme value',
+                    400,
+                    ErrorCodes.INVALID_INPUT
+                );
+            }
+
+            const { data, error } = await supabase
+                .from('users')
+                .update({
+                    theme,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', userId)
+                .select('id, username, email, theme')
+                .single();
+
+            if (error) {
+                throw new AppError(
+                    'Failed to update theme',
+                    500,
+                    ErrorCodes.DATABASE_ERROR
+                );
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Update theme error:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = User;
