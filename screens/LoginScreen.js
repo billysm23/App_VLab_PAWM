@@ -19,10 +19,13 @@ export default function LoginScreen({ navigation }) {
     try {
       setLoading(true);
       const response = await login(email, password);
-      
-      await storeToken(response.token);
-      
-      navigation.replace('Home');
+      console.log('Login response:', response);
+      if (response.success && response.data && response.data.token) {
+        await storeToken(response.data.token);
+        navigation.replace('Home');
+      } else {
+        throw new Error('Invalid login response format');
+      }
     } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
