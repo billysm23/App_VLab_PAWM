@@ -83,7 +83,7 @@ export default function HomeScreen({ navigation }) {
             style={styles.button}
             activeOpacity={0.8}
             onPress={() => {
-              console.log('Get Started pressed but we hasn\'t made the redirect 😁');
+              navigation.navigate('Login');
             }}
           >
             <Text style={styles.buttonText}>Get Started</Text>

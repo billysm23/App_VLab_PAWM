@@ -1,72 +1,51 @@
 import { getToken } from './storage';
 
 const API_URL = __DEV__ 
-  ? `http://192.168.8.244:8081/api`
+  ? `http://192.168.8.244:5000/api`
   : 'vlabpawm://api';
 
 const apiRequest = async (endpoint, options = {}) => {
-  const token = await getToken();
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
-  };
-
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error?.message || 'Request failed');
-  }
-
-  return data;
-};
-
-export const login = async (email, password) => {
   try {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
+    console.log('API Request to:', API_URL + endpoint);
+    console.log('Request options:', options);
+    
+    const token = await getToken();
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
       },
-      body: JSON.stringify({ email, password }),
     });
 
     const data = await response.json();
-    
+    console.log('Response data:', data);
+
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Login failed');
+      throw new Error(data.error?.message || 'Request failed');
     }
 
     return data;
   } catch (error) {
+    console.error('API Request failed:', error);
     throw error;
   }
 };
 
 export const register = async (username, email, password) => {
-  try {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, email, password }),
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Registration failed');
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  console.log('Registering user:', { username, email });
+  return await apiRequest('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ username, email, password })
+  });
 };
+
+export const login = async (email, password) => {
+  return await apiRequest('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  });
+};
+
+export default apiRequest;
