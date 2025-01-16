@@ -5,7 +5,6 @@ export const storeToken = async (token) => {
     if (!token) {
       throw new Error('Token is required');
     }
-    console.log('Storing token:', token);
     await AsyncStorage.setItem('userToken', token);
     console.log('Token stored successfully');
   } catch (error) {

@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { updateTheme as apiUpdateTheme } from './api';
+import { getToken } from './storage';
 
 const THEME_KEY = 'app_theme';
 
@@ -9,7 +10,6 @@ export const storeTheme = async (theme) => {
       throw new Error('Invalid theme value');
     }
     await AsyncStorage.setItem(THEME_KEY, theme);
-    console.log('Theme stored:', theme);
   } catch (error) {
     console.error('Error storing theme:', error);
     throw error;
@@ -28,15 +28,22 @@ export const getStoredTheme = async () => {
 
 export const syncThemeWithServer = async (theme) => {
   try {
-    console.log('Syncing theme with server:', theme);
-    const response = await apiUpdateTheme(theme);
-    if (response.success) {
-      await storeTheme(theme);
-      console.log('Theme synced successfully');
+    const token = await getToken();
+    await storeTheme(theme);
+
+    if (token) {
+      console.log('User is logged in, syncing with server...');
+      try {
+        const response = await apiUpdateTheme(theme);
+        return response;
+      } catch (error) {
+        console.warn('Failed to sync theme with server:', error);
+      }
     }
-    return response;
+    
+    return { success: true };
   } catch (error) {
-    console.error('Error syncing theme with server:', error);
+    console.error('Error in theme sync process:', error);
     throw error;
   }
 };

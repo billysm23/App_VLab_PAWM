@@ -19,7 +19,6 @@ export default function LoginScreen({ navigation }) {
     try {
       setLoading(true);
       const response = await login(email, password);
-      console.log('Login response:', response);
       if (response.success && response.data && response.data.token) {
         await storeToken(response.data.token);
         navigation.replace('Home');

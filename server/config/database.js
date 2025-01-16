@@ -1,7 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const envPath = path.resolve(__dirname, '../.env');
-console.log('Loading .env from:', envPath);
 require('dotenv').config({ path: envPath });
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {

@@ -34,7 +34,6 @@ const apiRequest = async (endpoint, options = {}) => {
 };
 
 export const register = async (username, email, password) => {
-  console.log('Registering user:', { username, email });
   return await apiRequest('/auth/register', {
     method: 'POST',
     body: JSON.stringify({ username, email, password })
@@ -52,6 +51,12 @@ export const updateTheme = async (theme) => {
   return await apiRequest('/auth/theme', {
     method: 'PUT',
     body: JSON.stringify({ theme })
+  });
+};
+
+export const logout = async () => {
+  return await apiRequest('/auth/logout', {
+    method: 'POST',
   });
 };
 

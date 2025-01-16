@@ -21,7 +21,6 @@ export const ThemeProvider = ({ children }) => {
     try {
       const newTheme = theme === 'light' ? 'dark' : 'light';
       setTheme(newTheme);
-      console.log('Toggling theme:', newTheme);
       await syncThemeWithServer(newTheme);
     } catch (error) {
       console.error('Error toggling theme:', error);
@@ -38,7 +37,6 @@ export const ThemeProvider = ({ children }) => {
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  console.log('Theme context:', context);
   if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
