@@ -1,7 +1,7 @@
 import { getToken } from './storage';
 
 const API_URL = __DEV__ 
-  ? `http://192.168.104.98:5000/api`
+  ? `http://192.168.8.244:5000/api`
   : 'vlabpawm://api';
 
 const apiRequest = async (endpoint, options = {}) => {
@@ -73,10 +73,10 @@ export const getAllLessons = async () => {
     });
   };
   
-  export const getLessonById = async (lessonId) => {
-    return await apiRequest(`/lessons/${lessonId}`, {
-      method: 'GET'
-    });
-  };
+export const getLessonById = async (lessonId) => {
+  return await apiRequest(`/lessons/${lessonId}`, {
+    method: 'GET'
+  });
+};
 
 export default apiRequest;

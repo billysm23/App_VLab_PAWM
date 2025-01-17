@@ -9,10 +9,7 @@ exports.getAllLessons = asyncHandler(async (req, res, next) => {
         const { data: lessons, error } = await supabase
             .from('lessons')
             .select(`
-                *,
-                prerequisites (prerequisite),
-                learning_objectives (objective),
-                topics (title, description, icon)
+                *
             `)
             .order('order_number');
 
@@ -71,21 +68,23 @@ exports.getLessonById = asyncHandler(async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const { data: lesson, error } = await supabase
+        // Main query untuk mengambil lesson dan semua data terkait
+        const { data: lesson, error: lessonError } = await supabase
             .from('lessons')
             .select(`
                 *,
-                prerequisites (prerequisite),
-                learning_objectives (objective),
-                topics (title, description, icon),
-                key_concepts (title, description, example)
+                learning_objectives!learning_objectives_lesson_id_fkey(objective),
+                prerequisites!prerequisites_lesson_id_fkey(prerequisite),
+                topics!topics_lesson_id_fkey(title, description, icon),
+                key_concepts!key_concepts_lesson_id_fkey(title, description, example)
             `)
             .eq('id', id)
             .single();
 
-        if (error) {
+        if (lessonError) {
+            console.error('Database query error:', lessonError);
             throw new AppError(
-                'Failed to fetch lesson',
+                'Failed to fetch lesson details',
                 500,
                 ErrorCodes.DATABASE_ERROR
             );
@@ -99,19 +98,34 @@ exports.getLessonById = asyncHandler(async (req, res, next) => {
             );
         }
 
-        // Process lesson data
-        const processedLesson = {
+        // Transform data structure untuk response
+        const transformedLesson = {
             ...lesson,
-            prerequisites: lesson.prerequisites?.map(p => p.prerequisite) || [],
-            learning_objectives: lesson.learning_objectives?.map(lo => lo.objective) || [],
+            learning_objectives: lesson.learning_objectives?.map(obj => obj.objective) || [],
+            prerequisites: lesson.prerequisites?.map(prereq => prereq.prerequisite) || [],
             topics: lesson.topics || [],
             key_concepts: lesson.key_concepts || []
         };
 
+        // Check active quiz results
+        const { data: quizResults, error: quizError } = await supabase
+            .from('quiz_results')
+            .select('score')
+            .eq('lesson_id', id)
+            .eq('user_id', req.user.id)
+            .single();
+
+        if (quizError && quizError.code !== 'PGRST116') {
+            console.error('Error checking quiz results:', quizError);
+        }
+
+        transformedLesson.quiz_completed = quizResults?.score >= 60 || false;
+
         res.status(200).json({
             success: true,
-            data: processedLesson
+            data: transformedLesson
         });
+
     } catch (error) {
         next(error);
     }

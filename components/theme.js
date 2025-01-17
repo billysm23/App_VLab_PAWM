@@ -19,6 +19,8 @@ export const themeColors = {
 
     // Text
     text: '#D8EAFFFF',
+    textReverse: '#094386FF',
+    textReverse2: '#3070B9FF',
     textSecondary: '#a8c5e9',
     textLight: '#ffffff',
     textLink: 'rgb(74, 132, 223)',
@@ -73,6 +75,8 @@ export const themeColors = {
 
     // Text
     text: '#f8fafc',
+    textReverse: '#E6F1FFFF',
+    textReverse2: '#D7DCE3FF',
     textSecondary: '#cbd5e1',
     textLight: '#ffffff',
     textLink: '#60a5fa',

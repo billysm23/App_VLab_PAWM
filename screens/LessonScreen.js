@@ -4,6 +4,7 @@ import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } fr
 import LessonCard from '../components/LessonCard';
 import Navbar from '../components/Navbar';
 import { useThemeColors } from '../components/theme';
+import ThemeToggle from '../components/ThemeToggle';
 import { useTheme } from '../contexts/ThemeContext';
 import { getAllLessons } from '../services/api';
 import { getToken } from '../services/storage';
@@ -44,7 +45,7 @@ const LessonsScreen = () => {
         navigation.navigate('Login');
         return;
       }
-
+      
       const response = await getAllLessons();
       if (response.success) {
         setLessons(response.data);
@@ -101,10 +102,11 @@ const LessonsScreen = () => {
         }}
       >
         <Text style={{ 
-          fontSize: 24, 
+          fontSize: 20, 
           fontWeight: 'bold',
           color: colors.text,
           marginBottom: 20,
+          marginTop: 60,
           textAlign: 'center'
         }}>
           Computational Thinking Lessons
@@ -121,6 +123,7 @@ const LessonsScreen = () => {
         </View>
       </ScrollView>
       <Navbar navigation={navigation} activeRoute="Lessons" />
+      <ThemeToggle />
     </View>
   );
 };

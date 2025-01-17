@@ -12,20 +12,20 @@ const LessonCard = ({ lesson, onStartLesson }) => {
   const getLevelColor = () => {
     switch(lesson.level) {
       case 'Beginner':
-        return { bg: colors.accent, text: colors.text };
+        return { bg: colors.accent, text: colors.textReverse };
       case 'Intermediate':
         return { bg: colors.accent2, text: colors.text };
       case 'Advanced':
-        return { bg: '#FF6B6B', text: colors.text };
+        return { bg: '#FC5959FF', text: colors.text };
       default:
-        return { bg: colors.accent, text: colors.text };
+        return { bg: colors.accent, text: colors.textReverse };
     }
   };
 
   return (
     <TouchableOpacity 
-      onPress={() => onStartLesson(lesson.id)}
       disabled={isLocked}
+      activeOpacity={0.85}
       style={[
         styles.container,
         { backgroundColor: colors.cardBackground }
@@ -52,7 +52,7 @@ const LessonCard = ({ lesson, onStartLesson }) => {
               {lesson.level}
             </Text>
           </View>
-          <Text style={[styles.duration, { color: colors.textSecondary }]}>
+          <Text style={[styles.duration, { color: colors.textReverse2 }]}>
             {lesson.duration}
           </Text>
         </View>
@@ -60,10 +60,10 @@ const LessonCard = ({ lesson, onStartLesson }) => {
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>
+        <Text style={[styles.title, { color: colors.textReverse }]}>
           {lesson.title}
         </Text>
-        <Text style={[styles.description, { color: colors.textSecondary }]}>
+        <Text style={[styles.description, { color: colors.textReverse2 }]}>
           {lesson.description}
         </Text>
 
@@ -101,15 +101,6 @@ const LessonCard = ({ lesson, onStartLesson }) => {
           </Text>
         </TouchableOpacity>
       </View>
-
-      {/* Practice Time Badge */}
-      {lesson.practice_time && (
-        <View style={[styles.practiceBadge, { backgroundColor: colors.accent }]}>
-          <Text style={[styles.practiceText, { color: colors.text }]}>
-            Practice: {lesson.practice_time}
-          </Text>
-        </View>
-      )}
     </TouchableOpacity>
   );
 };
@@ -140,7 +131,7 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 18,
   },
   levelBadge: {
     paddingHorizontal: 12,
@@ -197,18 +188,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 14,
     fontWeight: '600',
-  },
-  practiceBadge: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  practiceText: {
-    fontSize: 12,
-    fontWeight: '500',
   },
 });
 
