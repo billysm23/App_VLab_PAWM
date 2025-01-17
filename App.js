@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import SplashScreen from './components/SplashScreen';
 import { ThemeProvider } from './contexts/ThemeContext';
 import HomeScreen from './screens/HomeScreen';
+import LessonsScreen from './screens/LessonScreen';
 import LoginScreen from './screens/LoginScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -101,6 +102,11 @@ export default function App() {
             <Stack.Screen 
               name="Profile" 
               component={ProfileScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="Lessons" 
+              component={LessonsScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

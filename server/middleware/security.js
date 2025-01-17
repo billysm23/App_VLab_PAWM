@@ -5,10 +5,10 @@ const helmetConfig = helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://fit-kitchen-backend-tst.vercel.app"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fit-kitchen-backend-tst.vercel.app"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "vlabpawm://*"],
+            styleSrc: ["'self'", "'unsafe-inline'", "vlabpawm://*"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://fit-kitchen-backend-tst.vercel.app"],
+            connectSrc: ["'self'", "vlabpawm://*"],
             fontSrc: ["'self'", "https:"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],

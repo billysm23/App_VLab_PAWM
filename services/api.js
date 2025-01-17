@@ -66,4 +66,17 @@ export const logout = async () => {
   });
 };
 
+// Lesson
+export const getAllLessons = async () => {
+    return await apiRequest('/lessons', {
+      method: 'GET'
+    });
+  };
+  
+  export const getLessonById = async (lessonId) => {
+    return await apiRequest(`/lessons/${lessonId}`, {
+      method: 'GET'
+    });
+  };
+
 export default apiRequest;
