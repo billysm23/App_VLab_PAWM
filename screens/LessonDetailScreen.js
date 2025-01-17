@@ -94,17 +94,40 @@ const LessonDetailScreen = ({ route, navigation }) => {
 
   const renderHeader = () => (
     <LinearGradient
-      colors={['#001F3F', '#133B64']}
+      colors={theme === 'dark' ? ['#001F3F', '#133B64'] : ['#1C65A9FF', '#60CCEFFF' ]}
       style={styles.header}
     >
       <View style={styles.headerContent}>
-        <Text style={styles.title}>{lesson?.title || ''}</Text>
-        <Text style={styles.description}>{lesson?.description || ''}</Text>
+        <Text style={[
+          styles.title,
+          { color: theme === 'dark' ? '#ffffff' : '#011A42FF' }
+        ]}>
+          {lesson?.title || ''}
+        </Text>
+        <Text style={[
+          styles.description,
+          { color: theme === 'dark' ? '#D8EAFF' : '#0F2647FF' }
+        ]}>
+          {lesson?.description || ''}
+        </Text>
         <View style={styles.metaContainer}>
-          <View style={styles.levelBadge}>
-            <Text style={styles.levelText}>{lesson?.level || ''}</Text>
+          <View style={[
+            styles.levelBadge,
+            { backgroundColor: theme === 'dark' ? '#60a5fa' : '#0099FFFF' }
+          ]}>
+            <Text style={[
+              styles.levelText,
+              { color: '#ffffff' }
+            ]}>
+              {lesson?.level || ''}
+            </Text>
           </View>
-          <Text style={styles.duration}>Duration: {lesson?.duration || ''}</Text>
+          <Text style={[
+            styles.duration,
+            { color: theme === 'dark' ? '#D8EAFF' : '#424C5AFF' }
+          ]}>
+            Duration: {lesson?.duration || ''}
+          </Text>
         </View>
       </View>
     </LinearGradient>
@@ -115,12 +138,20 @@ const LessonDetailScreen = ({ route, navigation }) => {
       onPress={() => setActiveTab(name)}
       style={[
         styles.tab,
-        activeTab === name && styles.activeTab
+        { 
+          backgroundColor: activeTab === name 
+            ? (theme === 'dark' ? '#60a5fa' : '#0099FFFF')
+            : (theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#AFDFFFFF')
+        }
       ]}
     >
       <Text style={[
         styles.tabText,
-        activeTab === name && styles.activeTabText
+        { 
+          color: activeTab === name 
+            ? '#ffffff'
+            : (theme === 'dark' ? '#D8EAFF' : '#475569')
+        }
       ]}>
         {label}
       </Text>
@@ -132,19 +163,42 @@ const LessonDetailScreen = ({ route, navigation }) => {
       case 'overview':
         return (
           <>
-            <Text style={styles.sectionTitle}>Learning Objectives</Text>
+            <Text style={[styles.sectionTitle, { color: theme === 'dark' ? '#ffffff' : '#3B1E1EFF' }]}>
+              Learning Objectives</Text>
             {lesson?.learning_objectives?.map((objective, index) => (
-              <View key={index} style={styles.objectiveItem}>
-                <Feather name="check-circle" size={20} color="#60a5fa" />
-                <Text style={styles.objectiveText}>{objective}</Text>
+              <View key={index} style={[styles.objectiveItem,
+              { 
+                backgroundColor: theme === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.1)' 
+                  : '#98D1FFFF' 
+              }
+            ]}>
+                <Feather name="check-circle" size={20} color={theme === 'dark' ? '#60a5fa' : '#003181FF'} />
+                <Text style={[
+                  styles.objectiveText,
+                  { color: theme === 'dark' ? '#D8EAFF' : '#475569' }
+                ]}>
+                  {objective}
+                </Text>
               </View>
             ))}
             
-            <Text style={styles.sectionTitle}>Prerequisites</Text>
+            <Text style={[styles.sectionTitle, { color: theme === 'dark' ? '#ffffff' : '#3B1E1EFF' }]}>
+              Prerequisites</Text>
             {lesson?.prerequisites?.map((prerequisite, index) => (
-              <View key={index} style={styles.prerequisiteItem}>
-                <Feather name="arrow-right" size={20} color="#60a5fa" />
-                <Text style={styles.prerequisiteText}>{prerequisite}</Text>
+              <View key={index} style={[styles.prerequisiteItem,
+                { 
+                  backgroundColor: theme === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : '#98D1FFFF' 
+                }
+              ]}>
+                <Feather name="arrow-right" size={20} color={theme === 'dark' ? '#60a5fa' : '#003181FF'} />
+                <Text style={[styles.prerequisiteText,
+                  { color: theme === 'dark' ? '#D8EAFF' : '#475569' }
+                ]}>
+                  {prerequisite}
+                </Text>
               </View>
             ))}
           </>
@@ -153,10 +207,19 @@ const LessonDetailScreen = ({ route, navigation }) => {
         return (
           <View>
             {lesson?.topics?.map((topic, index) => (
-              <View key={index} style={styles.topicCard}>
+              <View key={index} style={[styles.topicCard,
+                { 
+                  backgroundColor: theme === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : '#98D1FFFF' 
+                }
+              ]}>
                 <Text style={styles.topicIcon}>{topic.icon}</Text>
-                <Text style={styles.topicTitle}>{topic.title}</Text>
-                <Text style={styles.topicDescription}>{topic.description}</Text>
+                <Text style={[styles.topicTitle, { color: theme === 'dark' ? '#ffffff' : '#182E4BFF' }]}>
+                  {topic.title}</Text>
+                <Text style={[styles.topicDescription,
+                  { color: theme === 'dark' ? '#D8EAFF' : '#375A8BFF' }]}>
+                  {topic.description}</Text>
               </View>
             ))}
           </View>
@@ -165,9 +228,18 @@ const LessonDetailScreen = ({ route, navigation }) => {
         return (
           <View>
             {lesson?.key_concepts?.map((concept, index) => (
-              <View key={index} style={styles.conceptCard}>
-                <Text style={styles.conceptTitle}>{concept.title}</Text>
-                <Text style={styles.conceptDescription}>{concept.description}</Text>
+              <View key={index} style={[styles.conceptCard,
+                { 
+                  backgroundColor: theme === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : '#98D1FFFF' 
+                }
+              ]}>
+                <Text style={[styles.conceptTitle, { color: theme === 'dark' ? '#ffffff' : '#182E4BFF' }]}>
+                  {concept.title}</Text>
+                <Text style={[styles.conceptDescription,
+                  { color: theme === 'dark' ? '#D8EAFF' : '#375A8BFF' }]}>
+                  {concept.description}</Text>
                 {concept.example && (
                   <View style={styles.exampleBox}>
                     <Text style={styles.exampleText}>{concept.example}</Text>
@@ -183,8 +255,16 @@ const LessonDetailScreen = ({ route, navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
+    <View style={[
+      styles.container,
+      { backgroundColor: theme === 'dark' ? '#001F3F' : '#D6F0FFFF' }
+    ]}>
+      <StatusBar 
+        translucent 
+        backgroundColor="transparent"
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+      />
+      
       {renderHeader()}
       
       <View style={styles.tabContainer}>
@@ -193,7 +273,10 @@ const LessonDetailScreen = ({ route, navigation }) => {
         <TabButton name="resources" label="Resources" />
       </View>
       
-      <ScrollView style={styles.contentContainer}>
+      <ScrollView style={[
+        styles.contentContainer, 
+        { backgroundColor: theme === 'dark' ? '#001F3F' : '#D6F0FFFF' }
+      ]}>
         {renderContent()}
       </ScrollView>
 
@@ -250,6 +333,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     marginTop: 20,
+    marginBottom: 10,
   },
   tab: {
     flex: 1,
@@ -274,12 +358,13 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 20,
+    marginBottom: 80,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#ffffff',
-    marginTop: 20,
+    marginTop: 10,
     marginBottom: 15,
   },
   objectiveItem: {
@@ -350,12 +435,13 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   exampleBox: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     padding: 15,
     borderRadius: 8,
+    marginBottom: 10,
   },
   exampleText: {
-    color: '#D8EAFF',
+    color: '#F1F7FFFF',
     fontSize: 14,
     lineHeight: 20,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',

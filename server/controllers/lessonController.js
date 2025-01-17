@@ -31,20 +31,10 @@ exports.getAllLessons = asyncHandler(async (req, res, next) => {
             console.error('Error fetching quiz results:', quizError);
         }
 
-        // Process lessons to include prerequisites as array and check status
         const processedLessons = lessons.map(lesson => {
             const prerequisites = lesson.prerequisites?.map(p => p.prerequisite) || [];
             
-            // Check if previous lesson's quiz was completed successfully
             let status = lesson.status;
-            if (lesson.order_number > 1) {
-                const prevLessonId = lessons.find(l => l.order_number === lesson.order_number - 1)?.id;
-                const prevQuizResult = quizResults?.find(qr => qr.lesson_id === prevLessonId);
-                
-                if (!prevQuizResult || prevQuizResult.score < 60) {
-                    status = 'locked';
-                }
-            }
 
             return {
                 ...lesson,
@@ -68,7 +58,6 @@ exports.getLessonById = asyncHandler(async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        // Main query untuk mengambil lesson dan semua data terkait
         const { data: lesson, error: lessonError } = await supabase
             .from('lessons')
             .select(`
@@ -98,7 +87,6 @@ exports.getLessonById = asyncHandler(async (req, res, next) => {
             );
         }
 
-        // Transform data structure untuk response
         const transformedLesson = {
             ...lesson,
             learning_objectives: lesson.learning_objectives?.map(obj => obj.objective) || [],
@@ -107,7 +95,6 @@ exports.getLessonById = asyncHandler(async (req, res, next) => {
             key_concepts: lesson.key_concepts || []
         };
 
-        // Check active quiz results
         const { data: quizResults, error: quizError } = await supabase
             .from('quiz_results')
             .select('score')
