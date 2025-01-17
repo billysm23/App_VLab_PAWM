@@ -418,3 +418,30 @@ exports.updateTheme = asyncHandler(async (req, res, next) => {
         next(error);
     }
 });
+
+exports.getProfile = asyncHandler(async (req, res, next) => {
+    try {
+        const { data: userData, error } = await supabase
+            .from('users')
+            .select('id, username, email, full_name, avatar_url, theme')
+            .eq('id', req.user.id)
+            .single();
+
+        if (error) {
+            throw new AppError(
+                'Failed to fetch user profile',
+                500,
+                ErrorCodes.DATABASE_ERROR
+            );
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                user: userData
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+});

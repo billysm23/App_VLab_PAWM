@@ -9,6 +9,7 @@ import SplashScreen from './components/SplashScreen';
 import { ThemeProvider } from './contexts/ThemeContext';
 import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
+import ProfileScreen from './screens/ProfileScreen';
 import RegisterScreen from './screens/RegisterScreen';
 
 const Stack = createStackNavigator();
@@ -41,7 +42,43 @@ export default function App() {
               headerTitleStyle: {
                 fontWeight: 'bold',
               },
-              cardStyle: { backgroundColor: '#001F3F' }
+              cardStyle: { backgroundColor: '#001F3F' },
+              transitionSpec: {
+                open: {
+                  animation: 'timing',
+                  config: {
+                    duration: 300,
+                  },
+                },
+                close: {
+                  animation: 'timing',
+                  config: {
+                    duration: 300,
+                  },
+                },
+              },
+              cardStyleInterpolator: ({ current, layouts }) => ({
+                cardStyle: {
+                  transform: [
+                    {
+                      translateX: current.progress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [layouts.screen.width, 0],
+                      }),
+                    },
+                  ],
+                  opacity: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 1],
+                  }),
+                },
+                overlayStyle: {
+                  opacity: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 0.5],
+                  }),
+                },
+              }),
             }}
           >
             <Stack.Screen 
@@ -59,6 +96,11 @@ export default function App() {
             <Stack.Screen 
               name="Register" 
               component={RegisterScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="Profile" 
+              component={ProfileScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

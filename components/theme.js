@@ -2,11 +2,12 @@ export const themeColors = {
   light: {
     primary: '#001F3F',
     secondary: '#d5f6ff',
-    accent: '#56c5fd',
+    accent: '#BDE9FFFF',
+    accent2: '#34ADDDFF',
     login: '#2162c2',
 
     // Background
-    background: '#001F3F',
+    background: '#133B64FF',
     backgroundSecondary: '#002c5c',
     backgroundAccent: '#004080',
     backgroundFeatures: '#f1f5f9',
@@ -17,7 +18,7 @@ export const themeColors = {
     iconBackground: '#0f172a',
 
     // Text
-    text: '#ffffff',
+    text: '#D8EAFFFF',
     textSecondary: '#a8c5e9',
     textLight: '#ffffff',
     textLink: 'rgb(74, 132, 223)',
@@ -54,12 +55,13 @@ export const themeColors = {
   
   dark: {
     primary: '#60a5fa',
-    secondary: '#1e3a8a',
+    secondary: '#52A7FCFF',
     accent: '#60a5fa',
+    accent2: '#52A9E8FF',
     login: '#3b82f6',
 
     // Background
-    background: '#0A0F1E',
+    background: '#001C3DFF',
     backgroundSecondary: '#111827',
     backgroundAccent: '#1f2937',
     backgroundFeatures: '#111827',

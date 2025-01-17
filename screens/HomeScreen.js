@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
+  ActivityIndicator,
   Animated,
   Dimensions,
   Image,
@@ -14,11 +14,11 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Navbar from '../components/Navbar';
 import { useThemeColors } from '../components/theme';
 import ThemeToggle from '../components/ThemeToggle';
 import { useTheme } from '../contexts/ThemeContext';
-import { logout } from '../services/api';
-import { getToken, removeToken } from '../services/storage';
+import { getToken } from '../services/storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,35 +26,21 @@ export default function HomeScreen({ navigation }) {
   const { theme } = useTheme();
   const colors = useThemeColors(theme);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Animation values
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
-
-  useEffect(() => {
-    checkLoginStatus();
-    animateContent();
-  }, []);
-
-  // Listen for navigation focus events
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      checkLoginStatus();
-    });
-
-    return unsubscribe;
-  }, [navigation]);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   const checkLoginStatus = async () => {
     try {
       const token = await getToken();
       setIsLoggedIn(token !== null);
-      setLoading(false);
     } catch (error) {
       console.error('Error checking login status:', error);
       setIsLoggedIn(false);
-      setLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -73,6 +59,30 @@ export default function HomeScreen({ navigation }) {
       }),
     ]).start();
   };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const initialize = async () => {
+      if (isMounted) {
+        await checkLoginStatus();
+        animateContent();
+      }
+    };
+
+    initialize();
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (isMounted) {
+        checkLoginStatus();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, [navigation]);
 
   const LoggedInContent = () => (
     <View style={styles.content}>
@@ -97,72 +107,8 @@ export default function HomeScreen({ navigation }) {
           Explore our interactive learning modules and start your journey in computational thinking.
         </Text>
       </View>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('Modules')}
-          style={styles.buttonWrapper}
-        >
-          <LinearGradient
-            colors={colors.gradients.button.colors}
-            start={colors.gradients.button.start}
-            end={colors.gradients.button.end}
-            style={styles.button}
-          >
-            <Text style={[styles.buttonText, { color: colors.textLight }]}>
-              Start Learning
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('Profile')}
-          style={styles.buttonWrapper}
-        >
-          <LinearGradient
-            colors={['#4B5563', '#374151']}
-            start={colors.gradients.button.start}
-            end={colors.gradients.button.end}
-            style={styles.button}
-          >
-            <Text style={[styles.buttonText, { color: colors.textLight }]}>
-              View Profile
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          activeOpacity={0.8}
-          onPress={handleLogout}
-          style={[styles.buttonWrapper, { marginTop: 16 }]}
-        >
-          <LinearGradient
-            colors={['#EF4444', '#DC2626']}
-            start={colors.gradients.button.start}
-            end={colors.gradients.button.end}
-            style={styles.button}
-          >
-            <Text style={[styles.buttonText, { color: colors.textLight }]}>
-              Logout
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
     </View>
   );
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      await removeToken();
-      navigation.replace('Login');
-    } catch (error) {
-      console.error('Logout error:', error);
-      Alert.alert('Error', 'Failed to logout. Please try again.');
-    }
-  };
 
   const WelcomeContent = () => (
     <View style={styles.content}>
@@ -208,8 +154,12 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 
-  if (loading) {
-    return null;
+  if (isLoading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   return (
@@ -237,6 +187,7 @@ export default function HomeScreen({ navigation }) {
           {isLoggedIn ? <LoggedInContent /> : <WelcomeContent />}
         </Animated.View>
       </ScrollView>
+      {isLoggedIn && <Navbar navigation={navigation} />}
       <ThemeToggle />
     </SafeAreaView>
   );
@@ -245,6 +196,11 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -300,10 +256,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   buttonContainer: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'center',
     gap: 16,
-    margin: 1,
   },
   buttonWrapper: {
     marginHorizontal: 8,

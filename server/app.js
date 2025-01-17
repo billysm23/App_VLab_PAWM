@@ -47,7 +47,8 @@ app.use(cors(corsOptions));
 // Security middleware
 app.use(helmetConfig);
 app.use(rateLimitConfig);
-app.use('/api/auth', authLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // Health
 app.get('/health', (req, res) => {

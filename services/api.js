@@ -54,6 +54,12 @@ export const updateTheme = async (theme) => {
   });
 };
 
+export const getUserProfile = async () => {
+  return await apiRequest('/auth/profile', {
+    method: 'GET'
+  });
+};
+
 export const logout = async () => {
   return await apiRequest('/auth/logout', {
     method: 'POST',
