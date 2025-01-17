@@ -62,7 +62,7 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
           )}
           <Text style={[
             styles.timeEstimate,
-            { color: colors.textSecondary }
+            { color: colors.textReverse2 }
           ]}>
             ~{quiz.estimated_time || '15'} mins
           </Text>
@@ -70,10 +70,10 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>
+        <Text style={[styles.title, { color: colors.textReverse }]}>
           {quiz.lesson_title} Quiz
         </Text>
-        <Text style={[styles.description, { color: colors.textSecondary }]}>
+        <Text style={[styles.description, { color: colors.textReverse2 }]}>
           {isLocked 
             ? 'Complete the previous lesson and its quiz to unlock.'
             : isCompleted
@@ -86,8 +86,8 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
           { borderTopColor: colors.cardBorder }
         ]}>
           <View style={styles.statItem}>
-            <Feather name="help-circle" size={16} color={colors.textSecondary} />
-            <Text style={[styles.statText, { color: colors.textSecondary }]}>
+            <Feather name="help-circle" size={16} color={colors.textReverse} />
+            <Text style={[styles.statText, { color: colors.textReverse }]}>
               {quiz.total_questions} Questions
             </Text>
           </View>
@@ -96,9 +96,9 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
             <Feather 
               name="target" 
               size={16} 
-              color={colors.textSecondary}
+              color={colors.textReverse}
             />
-            <Text style={[styles.statText, { color: colors.textSecondary }]}>
+            <Text style={[styles.statText, { color: colors.textReverse }]}>
               Pass: 60%
             </Text>
           </View>

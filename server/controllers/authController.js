@@ -104,6 +104,8 @@ exports.register = asyncHandler(async (req, res, next) => {
             console.error('Session creation error:', sessionError);
         }
 
+        // await initializeLessonProgress(newUser.id);
+
         res.status(201).json({
             success: true,
             data: {
@@ -189,6 +191,8 @@ exports.login = asyncHandler(async (req, res, next) => {
 
         // Remove password from response
         const { password: _, ...userWithoutPassword } = user;
+
+        // await initializeLessonProgress(user.id);
 
         res.status(200).json({
             success: true,
@@ -445,3 +449,51 @@ exports.getProfile = asyncHandler(async (req, res, next) => {
         next(error);
     }
 });
+
+const initializeLessonProgress = async (userId) => {
+    try {
+        // Check if user already has lesson progress
+        const { data: existingProgress } = await supabase
+            .from('lesson_progress')
+            .select('id')
+            .eq('user_id', userId)
+            .limit(1);
+
+        if (existingProgress?.length > 0) {
+            return; // Progress already initialized
+        }
+
+        // Get all lessons
+        const { data: lessons } = await supabase
+            .from('lessons')
+            .select('id, order_number')
+            .order('order_number');
+
+        if (!lessons?.length) {
+            return;
+        }
+
+        // Create progress records for all lessons
+        const progressRecords = lessons.map(lesson => ({
+            user_id: userId,
+            lesson_id: lesson.id,
+            status: lesson.order_number === 1 ? 'unlocked' : 'locked',
+            last_quiz_score: 0,
+            completed_at: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        }));
+
+        const { error: insertError } = await supabase
+            .from('lesson_progress')
+            .insert(progressRecords);
+
+        if (insertError) {
+            console.error('Error initializing lesson progress:', insertError);
+            throw new Error('Failed to initialize lesson progress');
+        }
+    } catch (error) {
+        console.error('Error in initializeLessonProgress:', error);
+        throw error;
+    }
+};

@@ -1,14 +1,14 @@
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Alert,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import Navbar from '../components/Navbar';
 import { useThemeColors } from '../components/theme';
@@ -47,7 +47,7 @@ const ProfileScreen = ({ navigation }) => {
       title: 'Account Settings',
       icon: 'settings',
       items: [
-        { name: 'Edit Profile', icon: 'edit-2', route: 'EditProfile' },
+        { name: 'Edit Profile', icon: 'edit-2', route: 'ComingSoon' },
         { name: 'Change Password', icon: 'lock', route: 'ChangePassword' },
       ]
     },
@@ -55,16 +55,16 @@ const ProfileScreen = ({ navigation }) => {
       title: 'Preferences',
       icon: 'sliders',
       items: [
-        { name: 'Language', icon: 'globe', route: 'Language' },
-        { name: 'Notifications', icon: 'bell', route: 'Notifications' },
+        { name: 'Language', icon: 'globe', route: 'ComingSoon' },
+        { name: 'Notifications', icon: 'bell', route: 'ComingSoon' },
       ]
     },
     {
       title: 'Support',
       icon: 'help-circle',
       items: [
-        { name: 'Help Center', icon: 'help-circle', route: 'Help' },
-        { name: 'About App', icon: 'info', route: 'About' },
+        { name: 'Help Center', icon: 'help-circle', route: 'ComingSoon' },
+        { name: 'About Us', icon: 'info', route: 'About' },
       ]
     }
   ];

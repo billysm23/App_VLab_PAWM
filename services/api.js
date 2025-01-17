@@ -79,103 +79,24 @@ export const getLessonById = async (lessonId) => {
   });
 };
 
+// Quiz
 export const getAllQuizzes = async () => {
-  try {
-    const token = await getToken();
-    if (!token) {
-      throw new Error('No auth token');
-    }
-
-    console.log('Fetching quizzes from:', `${API_URL}/quiz`);
-    
-    const response = await fetch(`${API_URL}/quiz`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
-
-    // Log response status dan headers untuk debugging
-    console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
-
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      console.error('Unexpected response format:', text);
-      throw new Error('Server returned non-JSON response');
-    }
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to fetch quizzes');
-    }
-
-    console.log('Quiz data received:', data);
-    return data;
-  } catch (error) {
-    console.error('Error getting quizzes:', error);
-    // Throw error yang lebih deskriptif
-    throw new Error(`Failed to fetch quizzes: ${error.message}`);
-  }
+  return await apiRequest('/quiz', {
+    method: 'GET'
+  });
 };
 
 export const getQuizByLessonId = async (lessonId) => {
-  try {
-    const token = await getToken();
-    if (!token) {
-      throw new Error('No auth token');
-    }
-
-    const response = await fetch(`${API_URL}/api/quiz/${lessonId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to fetch quiz');
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Error getting quiz:', error);
-    throw error;
-  }
+  return await apiRequest(`/quiz/${lessonId}`, {
+    method: 'GET'
+  });
 };
 
 export const submitQuizResult = async (lessonId, score) => {
-  try {
-    const token = await getToken();
-    if (!token) {
-      throw new Error('No auth token');
-    }
-
-    const response = await fetch(`${API_URL}/api/quiz/${lessonId}/submit`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ score })
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to submit quiz');
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Error submitting quiz:', error);
-    throw error;
-  }
+  return await apiRequest(`/quiz/${lessonId}/submit`, {
+    method: 'POST',
+    body: JSON.stringify({ score })
+  });
 };
 
 export default apiRequest;

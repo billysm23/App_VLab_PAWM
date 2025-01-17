@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbar from '../components/Navbar';
 import QuizCard from '../components/QuizCard';
 import { useThemeColors } from '../components/theme';
+import ThemeToggle from '../components/ThemeToggle';
 import { useTheme } from '../contexts/ThemeContext';
 import { getAllQuizzes } from '../services/api';
 import { getToken } from '../services/storage';
@@ -129,6 +130,7 @@ const QuizScreen = ({ navigation }) => {
         </View>
       </ScrollView>
       <Navbar navigation={navigation} activeRoute="Quiz" />
+      <ThemeToggle />
     </SafeAreaView>
   );
 };
@@ -150,13 +152,13 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     marginBottom: 24,
     textAlign: 'center',
   },

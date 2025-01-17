@@ -25,7 +25,7 @@ export const themeColors = {
     textLight: '#ffffff',
     textLink: 'rgb(74, 132, 223)',
     textBlue: 'rgb(0, 49, 87)',
-    placeholderText: '#9ca3af',
+    placeholderText: '#46536AFF',
 
     // Status
     error: '#dc3545',
@@ -36,9 +36,9 @@ export const themeColors = {
 
     gradients: {
       button: {
-        colors: ['#156FFFFF', '#60a5fa'],
+        colors: ['#159AFFFF', '#2071D4FF'],
         start: { x: 0, y: 0 },
-        end: { x: 1, y: 0 }
+        end: { x: 1, y: 1 }
       },
       background: {
         colors: ['#ffffff', '#f1f5f9'],
@@ -81,7 +81,7 @@ export const themeColors = {
     textLight: '#ffffff',
     textLink: '#60a5fa',
     textHighlight: '#93c5fd',
-    placeholderText: '#64748b',
+    placeholderText: '#36465DFF',
 
     // Buttons & Accents
     buttonPrimary: '#3b82f6',

@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -7,10 +8,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useThemeColors } from '../components/theme';
+import ThemeToggle from '../components/ThemeToggle';
+import { useTheme } from '../contexts/ThemeContext';
 import { login } from '../services/api';
 import { storeToken } from '../services/storage';
 
 export default function LoginScreen({ navigation }) {
+  const { theme } = useTheme();
+  const colors = useThemeColors(theme);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,37 +40,56 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={handleLogin}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? 'Loading...' : 'Login'}
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
+      <View style={[styles.card, {backgroundColor: colors.cardBackground}]}>
+        <Text style={[styles.title, {color: colors.textReverse}]}>
+          Login
         </Text>
-      </TouchableOpacity>
-      <View style={styles.registerContainer}>
-        <Text style={styles.registerText}>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.registerLink}>Register here</Text>
+        
+        <TextInput
+          style={[styles.input, {backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.textReverse}]}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          placeholderTextColor="#84909FFF"
+        />
+        
+        <TextInput
+          style={[styles.input, {backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.textReverse}]}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholderTextColor="#84909FFF"
+        />
+        
+        <TouchableOpacity 
+          style={[styles.buttonWrapper, {shadowColor: colors.shadowMd}]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <LinearGradient
+            colors={colors.gradients.button.colors}
+            start={colors.gradients.button.start}
+            end={colors.gradients.button.end}
+            style={styles.button}
+          >
+            <Text style={[styles.buttonText, {color: colors.textLight}]}>
+              {loading ? 'Loading...' : 'Login'}
+            </Text>
+          </LinearGradient>
         </TouchableOpacity>
+        
+        <View style={styles.registerContainer}>
+          <Text style={[styles.registerText, {color: colors.textReverse2}]}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <Text style={[styles.registerLink, {color: colors.textLink}]}>Register here</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+      <ThemeToggle/>
     </View>
   );
 }
@@ -71,26 +97,54 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  card: {
+    borderRadius: 12,
+    padding: 24,
+    gap: 16,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
   },
   input: {
     height: 48,
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 16,
-    marginBottom: 16,
+  },
+  buttonWrapper: {
+    borderRadius: 8,
+    shadowOffset: {
+      width: 0, 
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5, 
   },
   button: {
-    backgroundColor: '#60a5fa',
     height: 48,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -100,11 +154,8 @@ const styles = StyleSheet.create({
     marginTop: 16,
     padding: 1,
   },
-  registerText: {
-    color: '#94a3b8',
-  },
+  registerText: {},
   registerLink: {
-    color: '#60a5fa',
     fontWeight: 'bold',
   },
 });

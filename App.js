@@ -7,6 +7,7 @@ import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import SplashScreen from './components/SplashScreen';
 import { ThemeProvider } from './contexts/ThemeContext';
+import AboutScreen from './screens/AboutScreen';
 import ComingSoonScreen from './screens/ComingSoonScreen';
 import HomeScreen from './screens/HomeScreen';
 import LessonDetailScreen from './screens/LessonDetailScreen';
@@ -131,6 +132,11 @@ export default function App() {
             <Stack.Screen 
               name="ComingSoon" 
               component={ComingSoonScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="About" 
+              component={AboutScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

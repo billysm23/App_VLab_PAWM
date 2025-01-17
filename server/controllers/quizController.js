@@ -9,8 +9,8 @@ exports.getAllQuizzes = asyncHandler(async (req, res, next) => {
 
         // Get lesson progress untuk user ini
         const { data: lessonProgress, error: progressError } = await supabase
-            .from('lesson_progress')
-            .select('lesson_id, status, last_quiz_score')
+            .from('quiz_results')
+            .select('lesson_id, score')
             .eq('user_id', req.user.id);
 
         console.log('Progress query result:', { lessonProgress, progressError });
@@ -44,11 +44,10 @@ exports.getAllQuizzes = asyncHandler(async (req, res, next) => {
 
             // Insert progress untuk lesson pertama
             const { data: initProgress, error: initError } = await supabase
-                .from('lesson_progress')
+                .from('quiz_results')
                 .insert([{
                     user_id: req.user.id,
                     lesson_id: firstLesson.id,
-                    status: 'unlocked',
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString()
                 }])
@@ -134,20 +133,31 @@ exports.getQuizByLessonId = asyncHandler(async (req, res, next) => {
             );
         }
 
-        console.log('Fetching quiz for lesson:', lessonId); // Debug log
+        // Check if lesson exists first
+        const { data: lesson, error: lessonError } = await supabase
+            .from('lessons')
+            .select('id, title')
+            .eq('id', lessonId)
+            .single();
 
-        // Check lesson exists and user has access
-        const { data: lessonProgress, error: progressError } = await supabase
-            .from('lesson_progress')
-            .select('status')
+        if (lessonError || !lesson) {
+            throw new AppError(
+                'Lesson not found',
+                404,
+                ErrorCodes.RESOURCE_NOT_FOUND
+            );
+        }
+
+        // Get or initialize lesson progress
+        let lessonProgress;
+        const { data: existingProgress, error: progressError } = await supabase
+            .from('quiz_results')
+            .select('score')
             .eq('user_id', req.user.id)
             .eq('lesson_id', lessonId)
             .single();
 
-        console.log('Lesson progress:', lessonProgress); // Debug log
-
-        if (progressError) {
-            console.error('Progress error:', progressError); // Debug log
+        if (progressError && progressError.code !== 'PGRST116') {
             throw new AppError(
                 'Failed to check lesson access',
                 500,
@@ -155,27 +165,36 @@ exports.getQuizByLessonId = asyncHandler(async (req, res, next) => {
             );
         }
 
-        if (!lessonProgress || lessonProgress.status === 'locked') {
-            throw new AppError(
-                'Quiz is locked or not available',
-                403,
-                ErrorCodes.UNAUTHORIZED
-            );
+        if (!existingProgress) {
+            // Initialize progress if not exists
+            const { error: insertError } = await supabase
+                .from('quiz_results')
+                .insert([{
+                    user_id: req.user.id,
+                    lesson_id: lessonId,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }])
+                .single();
+
+            if (insertError) {
+                throw new AppError(
+                    'Failed to initialize lesson progress',
+                    500,
+                    ErrorCodes.DATABASE_ERROR
+                );
+            }
+
+            lessonProgress = { status: lesson.order_number === 1 ? 'unlocked' : 'locked' };
+        } else {
+            lessonProgress = existingProgress;
         }
 
-        // Get lesson title
-        const { data: lesson, error: lessonError } = await supabase
-            .from('lessons')
-            .select('title')
-            .eq('id', lessonId)
-            .single();
-
-        if (lessonError) {
-            console.error('Lesson error:', lessonError); // Debug log
+        if (lessonProgress.status === 'locked') {
             throw new AppError(
-                'Failed to fetch lesson details',
-                500,
-                ErrorCodes.DATABASE_ERROR
+                'Quiz is locked. Complete previous lessons first.',
+                403,
+                ErrorCodes.UNAUTHORIZED
             );
         }
 
@@ -197,15 +216,12 @@ exports.getQuizByLessonId = asyncHandler(async (req, res, next) => {
             .order('question_number');
 
         if (questionsError) {
-            console.error('Questions error:', questionsError); // Debug log
             throw new AppError(
                 'Failed to fetch quiz questions',
                 500,
                 ErrorCodes.DATABASE_ERROR
             );
         }
-
-        console.log('Sending response with questions:', questions.length); // Debug log
 
         res.status(200).json({
             success: true,
@@ -220,8 +236,8 @@ exports.getQuizByLessonId = asyncHandler(async (req, res, next) => {
                 }))
             }
         });
+
     } catch (error) {
-        console.error('Quiz fetch error:', error); // Debug log
         next(error);
     }
 });
