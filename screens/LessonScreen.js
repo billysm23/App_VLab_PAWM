@@ -26,7 +26,6 @@ const LessonScreen = () => {
       const token = await getToken();
       
       if (!token) {
-        console.log('No token found, redirecting to login');
         navigation.replace('Login');
         return;
       }

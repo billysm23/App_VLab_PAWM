@@ -148,7 +148,7 @@ const ProfileScreen = ({ navigation }) => {
             />
             <TouchableOpacity 
               style={[styles.editImageButton, { backgroundColor: colors.primary }]}
-              onPress={() => navigation.navigate('EditProfile')}
+              onPress={() => navigation.navigate('ComingSoon')}
             >
               <Feather name="edit-2" size={16} color="#ffffff" />
             </TouchableOpacity>

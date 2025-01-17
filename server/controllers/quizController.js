@@ -9,9 +9,8 @@ exports.submitQuizResult = asyncHandler(async (req, res, next) => {
         const { score } = req.body;
         const userId = req.user.id;
 
-        console.log('Processing quiz submission:', { lessonId, score, userId });
+        // console.log('Processing quiz submission:', { lessonId, score, userId });
 
-        // 1. Validasi input
         if (!lessonId || isNaN(parseInt(lessonId))) {
             throw new AppError('Invalid lesson ID', 400, ErrorCodes.INVALID_INPUT);
         }

@@ -3,12 +3,20 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const QuizCard = ({ quiz, onStartQuiz, colors }) => {
-  const isLocked = quiz.status === 'locked';
-  const isCompleted = quiz.status === 'completed';
-  const isAttempted = quiz.status === 'attempted';
+  const getStatus = () => {
+    if (quiz.best_score !== undefined && quiz.best_score !== null) {
+      return quiz.best_score >= 60 ? 'completed' : 'attempted';
+    }
+    if (quiz.attempts > 0) {
+      return 'attempted';
+    }
+    return quiz.status === 'locked' ? 'locked' : 'available';
+  };
+
+  const status = getStatus();
   
   const getStatusColor = () => {
-    switch(quiz.status) {
+    switch (status) {
       case 'completed':
         return colors.success;
       case 'attempted':
@@ -21,7 +29,7 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
   };
 
   const getStatusIcon = () => {
-    switch(quiz.status) {
+    switch (status) {
       case 'completed':
         return 'check-circle';
       case 'attempted':
@@ -32,6 +40,34 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
         return 'edit-3';
     }
   };
+
+  const getButtonText = () => {
+    switch (status) {
+      case 'completed':
+        return 'Retake Quiz';
+      case 'attempted':
+        return 'Continue Quiz';
+      case 'locked':
+        return 'Locked';
+      default:
+        return 'Start Quiz';
+    }
+  };
+
+  const getDescription = () => {
+    switch (status) {
+      case 'completed':
+        return `Quiz completed with ${quiz.best_score}%. Try again to improve your score!`;
+      case 'attempted':
+        return 'Continue practicing to improve your score.';
+      case 'locked':
+        return 'Complete the previous lesson and its quiz to unlock.';
+      default:
+        return 'Test your knowledge from this lesson.';
+    }
+  };
+
+  const isLocked = status === 'locked';
 
   return (
     <TouchableOpacity
@@ -49,7 +85,7 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
         </View>
         
         <View style={styles.headerRight}>
-          {quiz.best_score !== undefined && (
+          {quiz.best_score !== undefined && quiz.best_score !== null && (
             <View style={[styles.scoreBadge, { 
               backgroundColor: quiz.best_score >= 60 ? colors.success : colors.warning 
             }]}>
@@ -69,13 +105,7 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
           {quiz.lesson_title} Quiz
         </Text>
         <Text style={[styles.description, { color: colors.textReverse2 }]}>
-          {isLocked 
-            ? 'Complete the previous lesson and its quiz to unlock.'
-            : isCompleted
-              ? `Quiz completed with ${quiz.best_score}%. Try again to improve your score!`
-              : isAttempted
-                ? 'Continue practicing to improve your score.'
-                : 'Test your knowledge from this lesson.'}
+          {getDescription()}
         </Text>
 
         <View style={[styles.statsContainer, { borderTopColor: colors.cardBorder }]}>
@@ -92,6 +122,15 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
               Pass: 60%
             </Text>
           </View>
+          
+          {quiz.attempts > 0 && (
+            <View style={styles.statItem}>
+              <Feather name="refresh-ccw" size={16} color={colors.textReverse} />
+              <Text style={[styles.statText, { color: colors.textReverse }]}>
+                Attempts: {quiz.attempts}
+              </Text>
+            </View>
+          )}
         </View>
 
         <TouchableOpacity
@@ -104,13 +143,7 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
           <Text style={[styles.buttonText, { 
             color: isLocked ? colors.textSecondary : colors.textLight 
           }]}>
-            {isLocked 
-              ? 'Locked' 
-              : isCompleted 
-                ? 'Retake Quiz' 
-                : isAttempted 
-                  ? 'Continue Quiz' 
-                  : 'Start Quiz'}
+            {getButtonText()}
           </Text>
         </TouchableOpacity>
       </View>
@@ -176,7 +209,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: 16,
-    marginTop: 16,
     borderTopWidth: 1,
   },
   statItem: {

@@ -6,8 +6,8 @@ const API_URL = __DEV__
 
 const apiRequest = async (endpoint, options = {}) => {
   try {
-    console.log('API Request to:', API_URL + endpoint);
-    console.log('Request options:', options);
+    // console.log('API Request to:', API_URL + endpoint);
+    // console.log('Request options:', options);
     
     const token = await getToken();
     const response = await fetch(`${API_URL}${endpoint}`, {
@@ -20,7 +20,7 @@ const apiRequest = async (endpoint, options = {}) => {
     });
 
     const data = await response.json();
-    console.log('Response data:', data);
+    // console.log('Response data:', data);
 
     if (!response.ok) {
       throw new Error(data.error?.message || 'Request failed');

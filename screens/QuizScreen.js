@@ -47,10 +47,8 @@ const QuizScreen = ({ navigation }) => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching quizzes...');
       
       const response = await getAllQuizzes();
-      console.log('Quiz response:', response);
       
       if (response.success) {
         setQuizzes(response.data);

@@ -6,7 +6,6 @@ export const storeToken = async (token) => {
       throw new Error('Token is required');
     }
     await AsyncStorage.setItem('userToken', token);
-    console.log('Token stored successfully');
   } catch (error) {
     console.error('Error storing token:', error);
     throw error;
@@ -25,7 +24,6 @@ export const getToken = async () => {
 export const removeToken = async () => {
   try {
     await AsyncStorage.removeItem('userToken');
-    console.log('Token removed successfully');
   } catch (error) {
     console.error('Error removing token:', error);
     throw error;
