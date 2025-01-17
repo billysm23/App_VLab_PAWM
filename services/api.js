@@ -1,8 +1,6 @@
 import { getToken } from './storage';
 
-const API_URL = __DEV__ 
-  ? `http://192.168.8.244:5000/api`
-  : 'vlabpawm://api';
+const API_URL = 'https://vlab-backup.up.railway.app/api';
 
 const apiRequest = async (endpoint, options = {}) => {
   try {
