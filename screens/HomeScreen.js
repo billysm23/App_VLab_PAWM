@@ -14,6 +14,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import FeaturesSection from '../components/FeatureSection';
 import Navbar from '../components/Navbar';
 import { useThemeColors } from '../components/theme';
 import ThemeToggle from '../components/ThemeToggle';
@@ -85,6 +86,7 @@ export default function HomeScreen({ navigation }) {
   }, [navigation]);
 
   const LoggedInContent = () => (
+    <>
     <View style={styles.content}>
       <View style={[styles.logoContainer, {
         shadowColor: colors.shadowMd
@@ -108,9 +110,12 @@ export default function HomeScreen({ navigation }) {
         </Text>
       </View>
     </View>
+    <FeaturesSection colors={colors} />
+    </>
   );
 
   const WelcomeContent = () => (
+    <>
     <View style={styles.content}>
       <View style={[styles.logoContainer, {
         shadowColor: colors.shadowMd
@@ -152,6 +157,8 @@ export default function HomeScreen({ navigation }) {
         </LinearGradient>
       </TouchableOpacity>
     </View>
+    <FeaturesSection/>
+    </>
   );
 
   if (isLoading) {

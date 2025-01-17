@@ -32,7 +32,6 @@ export const syncThemeWithServer = async (theme) => {
     await storeTheme(theme);
 
     if (token) {
-      console.log('User is logged in, syncing with server...');
       try {
         const response = await apiUpdateTheme(theme);
         return response;

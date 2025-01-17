@@ -3,7 +3,7 @@ export const themeColors = {
     primary: '#001F3F',
     secondary: '#d5f6ff',
     accent: '#BDE9FFFF',
-    accent2: '#34ADDDFF',
+    accent2: '#51ABC9FF',
     login: '#2162c2',
 
     // Background
