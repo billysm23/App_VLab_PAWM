@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,6 +14,8 @@ import {
 import { useThemeColors } from '../components/theme';
 import ThemeToggle from '../components/ThemeToggle';
 import { useTheme } from '../contexts/ThemeContext';
+import { register } from '../services/api';
+import { storeToken } from '../services/storage';
 
 export default function RegisterScreen({ navigation }) {
   const { theme } = useTheme();

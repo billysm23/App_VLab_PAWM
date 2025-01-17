@@ -5,13 +5,16 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 const QuizCard = ({ quiz, onStartQuiz, colors }) => {
   const isLocked = quiz.status === 'locked';
   const isCompleted = quiz.status === 'completed';
+  const isAttempted = quiz.status === 'attempted';
   
   const getStatusColor = () => {
     switch(quiz.status) {
-      case 'locked':
-        return colors.textSecondary;
       case 'completed':
         return colors.success;
+      case 'attempted':
+        return colors.warning;
+      case 'locked':
+        return colors.textSecondary;
       default:
         return colors.accent2;
     }
@@ -19,10 +22,12 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
 
   const getStatusIcon = () => {
     switch(quiz.status) {
-      case 'locked':
-        return 'lock';
       case 'completed':
         return 'check-circle';
+      case 'attempted':
+        return 'refresh-cw';
+      case 'locked':
+        return 'lock';
       default:
         return 'edit-3';
     }
@@ -32,16 +37,10 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
     <TouchableOpacity
       onPress={() => onStartQuiz(quiz.lesson_id)}
       disabled={isLocked}
-      style={[
-        styles.container,
-        { backgroundColor: colors.cardBackground }
-      ]}
+      style={[styles.container, { backgroundColor: colors.cardBackground }]}
     >
       <View style={styles.header}>
-        <View style={[
-          styles.iconContainer,
-          { backgroundColor: colors.iconBackground }
-        ]}>
+        <View style={[styles.iconContainer, { backgroundColor: colors.iconBackground }]}>
           <Feather
             name={getStatusIcon()}
             size={24}
@@ -50,20 +49,16 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
         </View>
         
         <View style={styles.headerRight}>
-          {isCompleted && quiz.last_score && (
-            <View style={[
-              styles.scoreBadge,
-              { backgroundColor: colors.success }
-            ]}>
+          {quiz.best_score !== undefined && (
+            <View style={[styles.scoreBadge, { 
+              backgroundColor: quiz.best_score >= 60 ? colors.success : colors.warning 
+            }]}>
               <Text style={[styles.scoreText, { color: colors.textLight }]}>
-                Score: {quiz.last_score}%
+                Best Score: {quiz.best_score}%
               </Text>
             </View>
           )}
-          <Text style={[
-            styles.timeEstimate,
-            { color: colors.textReverse2 }
-          ]}>
+          <Text style={[styles.timeEstimate, { color: colors.textReverse2 }]}>
             ~{quiz.estimated_time || '15'} mins
           </Text>
         </View>
@@ -77,14 +72,13 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
           {isLocked 
             ? 'Complete the previous lesson and its quiz to unlock.'
             : isCompleted
-              ? 'Quiz completed! You can retake it to improve your score.'
-              : 'Test your knowledge from this lesson.'}
+              ? `Quiz completed with ${quiz.best_score}%. Try again to improve your score!`
+              : isAttempted
+                ? 'Continue practicing to improve your score.'
+                : 'Test your knowledge from this lesson.'}
         </Text>
 
-        <View style={[
-          styles.statsContainer,
-          { borderTopColor: colors.cardBorder }
-        ]}>
+        <View style={[styles.statsContainer, { borderTopColor: colors.cardBorder }]}>
           <View style={styles.statItem}>
             <Feather name="help-circle" size={16} color={colors.textReverse} />
             <Text style={[styles.statText, { color: colors.textReverse }]}>
@@ -93,11 +87,7 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
           </View>
           
           <View style={styles.statItem}>
-            <Feather 
-              name="target" 
-              size={16} 
-              color={colors.textReverse}
-            />
+            <Feather name="target" size={16} color={colors.textReverse} />
             <Text style={[styles.statText, { color: colors.textReverse }]}>
               Pass: 60%
             </Text>
@@ -107,24 +97,20 @@ const QuizCard = ({ quiz, onStartQuiz, colors }) => {
         <TouchableOpacity
           onPress={() => onStartQuiz(quiz.lesson_id)}
           disabled={isLocked}
-          style={[
-            styles.button,
-            { 
-              backgroundColor: isLocked 
-                ? colors.backgroundSecondary 
-                : colors.primary
-            }
-          ]}
+          style={[styles.button, { 
+            backgroundColor: isLocked ? colors.backgroundSecondary : colors.primary 
+          }]}
         >
-          <Text style={[
-            styles.buttonText,
-            { 
-              color: isLocked 
-                ? colors.textSecondary 
-                : colors.textLight 
-            }
-          ]}>
-            {isLocked ? 'Locked' : isCompleted ? 'Retake Quiz' : 'Start Quiz'}
+          <Text style={[styles.buttonText, { 
+            color: isLocked ? colors.textSecondary : colors.textLight 
+          }]}>
+            {isLocked 
+              ? 'Locked' 
+              : isCompleted 
+                ? 'Retake Quiz' 
+                : isAttempted 
+                  ? 'Continue Quiz' 
+                  : 'Start Quiz'}
           </Text>
         </TouchableOpacity>
       </View>

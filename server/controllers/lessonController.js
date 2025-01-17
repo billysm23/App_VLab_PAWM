@@ -5,15 +5,14 @@ const asyncHandler = require('../utils/asyncHandler');
 
 exports.getAllLessons = asyncHandler(async (req, res, next) => {
     try {
-        // Get lessons with their prerequisites
-        const { data: lessons, error } = await supabase
+        const { data: lessons, error: lessonError } = await supabase
             .from('lessons')
             .select(`
                 *
             `)
             .order('order_number');
 
-        if (error) {
+        if (lessonError) {
             throw new AppError(
                 'Failed to fetch lessons',
                 500,
@@ -21,27 +20,54 @@ exports.getAllLessons = asyncHandler(async (req, res, next) => {
             );
         }
 
-        // Get user's quiz results to determine lesson status
         const { data: quizResults, error: quizError } = await supabase
             .from('quiz_results')
-            .select('lesson_id, score')
-            .eq('user_id', req.user.id);
+            .select('lesson_id, score, completed_at')
+            .eq('user_id', req.user.id)
+            .order('completed_at', { ascending: false });
 
         if (quizError) {
-            console.error('Error fetching quiz results:', quizError);
+            throw new AppError(
+                'Failed to fetch quiz results',
+                500,
+                ErrorCodes.DATABASE_ERROR
+            );
         }
 
         const processedLessons = lessons.map(lesson => {
-            const prerequisites = lesson.prerequisites?.map(p => p.prerequisite) || [];
+            const lessonResults = quizResults?.filter(r => r.lesson_id === lesson.id) || [];
+            const bestScore = lessonResults.length > 0 
+                ? Math.max(...lessonResults.map(r => r.score))
+                : null;
+
+            let status = 'locked';
             
-            let status = lesson.status;
+            if (lesson.order_number === 1) {
+                status = lessonResults.length > 0 
+                    ? (bestScore >= 60 ? 'completed' : 'attempted')
+                    : 'unlocked';
+            } else {
+                const prevLessonResults = quizResults?.filter(
+                    r => r.lesson_id === lesson.id - 1
+                ) || [];
+                const prevBestScore = prevLessonResults.length > 0
+                    ? Math.max(...prevLessonResults.map(r => r.score))
+                    : 0;
+
+                if (prevBestScore >= 60) {
+                    status = lessonResults.length > 0 
+                        ? (bestScore >= 60 ? 'completed' : 'attempted')
+                        : 'unlocked';
+                }
+            }
 
             return {
                 ...lesson,
-                prerequisites,
-                learning_objectives: lesson.learning_objectives?.map(lo => lo.objective) || [],
-                topics: lesson.topics || [],
-                status
+                prerequisites: lesson.prerequisites?.map(p => p.prerequisite) || [],
+                learning_objectives: lesson.learning_objectives?.map(o => o.objective) || [],
+                status,
+                best_score: bestScore,
+                attempts: lessonResults.length
             };
         });
 
@@ -49,6 +75,7 @@ exports.getAllLessons = asyncHandler(async (req, res, next) => {
             success: true,
             data: processedLessons
         });
+
     } catch (error) {
         next(error);
     }
@@ -71,15 +98,6 @@ exports.getLessonById = asyncHandler(async (req, res, next) => {
             .single();
 
         if (lessonError) {
-            console.error('Database query error:', lessonError);
-            throw new AppError(
-                'Failed to fetch lesson details',
-                500,
-                ErrorCodes.DATABASE_ERROR
-            );
-        }
-
-        if (!lesson) {
             throw new AppError(
                 'Lesson not found',
                 404,
@@ -87,30 +105,71 @@ exports.getLessonById = asyncHandler(async (req, res, next) => {
             );
         }
 
-        const transformedLesson = {
-            ...lesson,
-            learning_objectives: lesson.learning_objectives?.map(obj => obj.objective) || [],
-            prerequisites: lesson.prerequisites?.map(prereq => prereq.prerequisite) || [],
-            topics: lesson.topics || [],
-            key_concepts: lesson.key_concepts || []
-        };
+        let status = 'locked';
+        if (lesson.order_number === 1) {
+            status = 'unlocked';
+        } else {
+            const { data: prevResults, error: prevError } = await supabase
+                .from('quiz_results')
+                .select('score')
+                .eq('user_id', req.user.id)
+                .eq('lesson_id', lesson.id - 1)
+                .gte('score', 60)
+                .limit(1);
 
-        const { data: quizResults, error: quizError } = await supabase
-            .from('quiz_results')
-            .select('score')
-            .eq('lesson_id', id)
-            .eq('user_id', req.user.id)
-            .single();
+            if (prevError) {
+                throw new AppError(
+                    'Failed to check lesson availability',
+                    500,
+                    ErrorCodes.DATABASE_ERROR
+                );
+            }
 
-        if (quizError && quizError.code !== 'PGRST116') {
-            console.error('Error checking quiz results:', quizError);
+            if (prevResults && prevResults.length > 0) {
+                status = 'unlocked';
+            } else {
+                throw new AppError(
+                    'Previous lesson must be completed first',
+                    403,
+                    ErrorCodes.PREREQUISITE_NOT_MET
+                );
+            }
         }
 
-        transformedLesson.quiz_completed = quizResults?.score >= 60 || false;
+        const { data: lessonResults, error: resultsError } = await supabase
+            .from('quiz_results')
+            .select('score, completed_at')
+            .eq('user_id', req.user.id)
+            .eq('lesson_id', id)
+            .order('completed_at', { ascending: false });
+
+        if (resultsError) {
+            console.error('Error fetching lesson results:', resultsError);
+        }
+
+        const bestScore = lessonResults && lessonResults.length > 0
+            ? Math.max(...lessonResults.map(r => r.score))
+            : null;
+
+        if (lessonResults?.length > 0) {
+            status = bestScore >= 60 ? 'completed' : 'attempted';
+        }
+
+        const formattedLesson = {
+            ...lesson,
+            learning_objectives: lesson.learning_objectives?.map(o => o.objective) || [],
+            prerequisites: lesson.prerequisites?.map(p => p.prerequisite) || [],
+            topics: lesson.topics || [],
+            key_concepts: lesson.key_concepts || [],
+            status,
+            best_score: bestScore,
+            attempts: lessonResults?.length || 0,
+            last_attempt: lessonResults?.[0]?.completed_at || null
+        };
 
         res.status(200).json({
             success: true,
-            data: transformedLesson
+            data: formattedLesson
         });
 
     } catch (error) {

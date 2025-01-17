@@ -3,120 +3,162 @@ const AppError = require('../utils/errors/AppError');
 const ErrorCodes = require('../utils/errors/errorCodes');
 const asyncHandler = require('../utils/asyncHandler');
 
+exports.submitQuizResult = asyncHandler(async (req, res, next) => {
+    try {
+        const { lessonId } = req.params;
+        const { score } = req.body;
+        const userId = req.user.id;
+
+        console.log('Processing quiz submission:', { lessonId, score, userId });
+
+        // 1. Validasi input
+        if (!lessonId || isNaN(parseInt(lessonId))) {
+            throw new AppError('Invalid lesson ID', 400, ErrorCodes.INVALID_INPUT);
+        }
+
+        if (typeof score !== 'number' || score < 0 || score > 100) {
+            throw new AppError('Invalid score value', 400, ErrorCodes.INVALID_INPUT);
+        }
+        
+        const { data: currentLesson, error: lessonError } = await supabase
+            .from('lessons')
+            .select(`
+                id,
+                order_number,
+                title
+            `)
+            .eq('id', lessonId)
+            .single();
+
+        if (lessonError) {
+            throw new AppError('Failed to fetch lesson information', 500, ErrorCodes.DATABASE_ERROR);
+        }
+
+        const { data: quizResult, error: resultError } = await supabase
+            .from('quiz_results')
+            .insert([{
+                user_id: userId,
+                lesson_id: lessonId,
+                score: score,
+                status: score >= 60 ? 'completed' : 'attempted',
+                completed_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
+
+        if (resultError) {
+            console.error('Error saving quiz result:', resultError);
+            throw new AppError('Failed to save quiz result', 500, ErrorCodes.DATABASE_ERROR);
+        }
+
+        const { data: userScores, error: scoresError } = await supabase
+            .from('quiz_results')
+            .select('score')
+            .eq('lesson_id', lessonId)
+            .eq('user_id', userId)
+            .order('score', { ascending: false })
+            .limit(1);
+
+        const bestScore = userScores?.[0]?.score || score;
+
+        res.status(200).json({
+            success: true,
+            data: {
+                message: 'Quiz result submitted successfully',
+                currentScore: score,
+                bestScore: bestScore,
+                passed: score >= 60,
+                lessonStatus: score >= 60 ? 'completed' : 'attempted',
+                progress: {
+                    lessonId: currentLesson.id,
+                    lessonTitle: currentLesson.title,
+                    orderNumber: currentLesson.order_number
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Submit quiz error:', error);
+        next(error);
+    }
+});
+
 exports.getAllQuizzes = asyncHandler(async (req, res, next) => {
     try {
-        console.log('Getting quizzes for user:', req.user.id);
-
-        // Get lesson progress untuk user ini
-        const { data: lessonProgress, error: progressError } = await supabase
-            .from('quiz_results')
-            .select('lesson_id, score')
-            .eq('user_id', req.user.id);
-
-        console.log('Progress query result:', { lessonProgress, progressError });
-
-        if (progressError) {
-            console.error('Progress error:', progressError);
-            throw new AppError(
-                'Failed to fetch lesson progress: ' + progressError.message,
-                500,
-                ErrorCodes.DATABASE_ERROR
-            );
-        }
-
-        if (!lessonProgress) {
-            // Jika tidak ada progress, inisialisasi untuk lesson pertama
-            const { data: firstLesson, error: lessonError } = await supabase
-                .from('lessons')
-                .select('id')
-                .order('order_number', { ascending: true })
-                .limit(1)
-                .single();
-
-            if (lessonError) {
-                console.error('Error getting first lesson:', lessonError);
-                throw new AppError(
-                    'Failed to get first lesson',
-                    500,
-                    ErrorCodes.DATABASE_ERROR
-                );
-            }
-
-            // Insert progress untuk lesson pertama
-            const { data: initProgress, error: initError } = await supabase
-                .from('quiz_results')
-                .insert([{
-                    user_id: req.user.id,
-                    lesson_id: firstLesson.id,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                }])
-                .select();
-
-            if (initError) {
-                console.error('Error initializing progress:', initError);
-                throw new AppError(
-                    'Failed to initialize lesson progress',
-                    500,
-                    ErrorCodes.DATABASE_ERROR
-                );
-            }
-        }
-
-        // Get all lessons with their quiz counts
         const { data: lessons, error: lessonError } = await supabase
             .from('lessons')
             .select(`
                 id,
                 title,
                 order_number,
-                quizzes (
-                    count
-                )
+                quizzes (count)
             `)
             .order('order_number');
 
-        console.log('Lessons query result:', { lessons, lessonError });
-
         if (lessonError) {
-            console.error('Lesson error:', lessonError);
             throw new AppError(
-                'Failed to fetch lessons: ' + lessonError.message,
+                'Failed to fetch lessons',
                 500,
                 ErrorCodes.DATABASE_ERROR
             );
         }
 
-        // Combine lesson data with progress
+        const { data: quizResults, error: resultsError } = await supabase
+            .from('quiz_results')
+            .select('*')
+            .eq('user_id', req.user.id)
+            .order('completed_at', { ascending: false });
+
+        if (resultsError) {
+            throw new AppError(
+                'Failed to fetch quiz results',
+                500,
+                ErrorCodes.DATABASE_ERROR
+            );
+        }
+
         const quizData = lessons.map(lesson => {
-            const progress = lessonProgress?.find(p => p.lesson_id === lesson.id) || {
-                status: lesson.order_number === 1 ? 'unlocked' : 'locked',
-                last_quiz_score: null
-            };
+            const lessonResults = quizResults?.filter(r => r.lesson_id === lesson.id) || [];
+            const bestScore = lessonResults.length > 0 
+                ? Math.max(...lessonResults.map(r => r.score))
+                : undefined;
+                
+            let status = 'locked';
+            if (lesson.order_number === 1) {
+                status = 'available';
+            } else {
+                const prevLessonResults = quizResults?.filter(
+                    r => r.lesson_id === lesson.id - 1
+                ) || [];
+                const prevBestScore = prevLessonResults.length > 0
+                    ? Math.max(...prevLessonResults.map(r => r.score))
+                    : 0;
+
+                if (prevBestScore >= 60) {
+                    status = lessonResults.length > 0 
+                        ? (bestScore >= 60 ? 'completed' : 'attempted')
+                        : 'available';
+                }
+            }
 
             return {
                 lesson_id: lesson.id,
                 lesson_title: lesson.title,
-                total_questions: lesson.quizzes?.[0]?.count || 0,
-                status: progress.status,
-                last_score: progress.last_quiz_score,
+                total_questions: lesson.quizzes[0]?.count || 0,
+                status,
+                best_score: bestScore,
+                attempts: lessonResults.length,
                 estimated_time: '15'
             };
         });
-
-        console.log('Final quiz data:', quizData);
 
         res.status(200).json({
             success: true,
             data: quizData
         });
+
     } catch (error) {
-        console.error('Controller error:', error);
-        next(new AppError(
-            error.message || 'Failed to fetch quizzes',
-            500,
-            ErrorCodes.DATABASE_ERROR
-        ));
+        next(error);
     }
 });
 
@@ -124,23 +166,21 @@ exports.getQuizByLessonId = asyncHandler(async (req, res, next) => {
     try {
         const { lessonId } = req.params;
         
-        // Validasi lessonId
         if (!lessonId || isNaN(parseInt(lessonId))) {
-            throw new AppError(
-                'Invalid lesson ID',
-                400,
-                ErrorCodes.INVALID_INPUT
-            );
+            throw new AppError('Invalid lesson ID', 400, ErrorCodes.INVALID_INPUT);
         }
 
-        // Check if lesson exists first
         const { data: lesson, error: lessonError } = await supabase
             .from('lessons')
-            .select('id, title')
+            .select(`
+                id,
+                title,
+                order_number
+            `)
             .eq('id', lessonId)
             .single();
 
-        if (lessonError || !lesson) {
+        if (lessonError) {
             throw new AppError(
                 'Lesson not found',
                 404,
@@ -148,57 +188,32 @@ exports.getQuizByLessonId = asyncHandler(async (req, res, next) => {
             );
         }
 
-        // Get or initialize lesson progress
-        let lessonProgress;
-        const { data: existingProgress, error: progressError } = await supabase
-            .from('quiz_results')
-            .select('score')
-            .eq('user_id', req.user.id)
-            .eq('lesson_id', lessonId)
-            .single();
-
-        if (progressError && progressError.code !== 'PGRST116') {
-            throw new AppError(
-                'Failed to check lesson access',
-                500,
-                ErrorCodes.DATABASE_ERROR
-            );
-        }
-
-        if (!existingProgress) {
-            // Initialize progress if not exists
-            const { error: insertError } = await supabase
+        if (lesson.order_number > 1) {
+            const { data: prevResults, error: prevError } = await supabase
                 .from('quiz_results')
-                .insert([{
-                    user_id: req.user.id,
-                    lesson_id: lessonId,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                }])
-                .single();
+                .select('score')
+                .eq('user_id', req.user.id)
+                .eq('lesson_id', lesson.id - 1)
+                .gte('score', 60)
+                .limit(1);
 
-            if (insertError) {
+            if (prevError) {
                 throw new AppError(
-                    'Failed to initialize lesson progress',
+                    'Failed to check lesson availability',
                     500,
                     ErrorCodes.DATABASE_ERROR
                 );
             }
 
-            lessonProgress = { status: lesson.order_number === 1 ? 'unlocked' : 'locked' };
-        } else {
-            lessonProgress = existingProgress;
+            if (!prevResults || prevResults.length === 0) {
+                throw new AppError(
+                    'Previous lesson must be completed first',
+                    403,
+                    ErrorCodes.PREREQUISITE_NOT_MET
+                );
+            }
         }
 
-        if (lessonProgress.status === 'locked') {
-            throw new AppError(
-                'Quiz is locked. Complete previous lessons first.',
-                403,
-                ErrorCodes.UNAUTHORIZED
-            );
-        }
-
-        // Get quiz questions with options
         const { data: questions, error: questionsError } = await supabase
             .from('quizzes')
             .select(`
@@ -223,11 +238,29 @@ exports.getQuizByLessonId = asyncHandler(async (req, res, next) => {
             );
         }
 
+        const { data: attempts, error: attemptsError } = await supabase
+            .from('quiz_results')
+            .select('score, completed_at')
+            .eq('user_id', req.user.id)
+            .eq('lesson_id', lessonId)
+            .order('completed_at', { ascending: false });
+
+        if (attemptsError) {
+            console.error('Error fetching attempts:', attemptsError);
+        }
+
+        const bestScore = attempts && attempts.length > 0
+            ? Math.max(...attempts.map(a => a.score))
+            : null;
+
         res.status(200).json({
             success: true,
             data: {
                 lesson_id: parseInt(lessonId),
                 lesson_title: lesson.title,
+                total_questions: questions.length,
+                best_score: bestScore,
+                attempts: attempts?.length || 0,
                 questions: questions.map(q => ({
                     id: q.id,
                     question_text: q.question_text,
@@ -237,46 +270,6 @@ exports.getQuizByLessonId = asyncHandler(async (req, res, next) => {
             }
         });
 
-    } catch (error) {
-        next(error);
-    }
-});
-
-exports.submitQuizResult = asyncHandler(async (req, res, next) => {
-    try {
-        const { lessonId } = req.params;
-        const { score } = req.body;
-
-        if (typeof score !== 'number' || score < 0 || score > 100) {
-            throw new AppError(
-                'Invalid score value',
-                400,
-                ErrorCodes.INVALID_INPUT
-            );
-        }
-
-        // Insert quiz result
-        const { error: resultError } = await supabase
-            .from('quiz_results')
-            .insert([{
-                user_id: req.user.id,
-                lesson_id: lessonId,
-                score: score,
-                completed_at: new Date().toISOString()
-            }]);
-
-        if (resultError) {
-            throw new AppError(
-                'Failed to save quiz result',
-                500,
-                ErrorCodes.DATABASE_ERROR
-            );
-        }
-
-        res.status(200).json({
-            success: true,
-            message: 'Quiz result submitted successfully'
-        });
     } catch (error) {
         next(error);
     }

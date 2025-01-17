@@ -6,8 +6,23 @@ import { useThemeColors } from './theme';
 
 const LessonCard = ({ lesson, onStartLesson }) => {
   const isLocked = lesson.status === 'locked';
+  const isCompleted = lesson.status === 'completed';
+  const isAttempted = lesson.status === 'attempted';
   const { theme } = useTheme();
   const colors = useThemeColors(theme);
+  
+  const getStatusIcon = () => {
+    switch(lesson.status) {
+      case 'completed':
+        return 'check-circle';
+      case 'attempted':
+        return 'clock';
+      case 'locked':
+        return 'lock';
+      default:
+        return 'book-open';
+    }
+  };
 
   const getLevelColor = () => {
     switch(lesson.level) {
@@ -26,29 +41,21 @@ const LessonCard = ({ lesson, onStartLesson }) => {
     <TouchableOpacity 
       disabled={isLocked}
       activeOpacity={0.85}
-      style={[
-        styles.container,
-        { backgroundColor: colors.cardBackground }
-      ]}
+      style={[styles.container, { backgroundColor: colors.cardBackground }]}
+      onPress={() => onStartLesson(lesson.id)}
     >
       {/* Header */}
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: colors.iconBackground }]}>
           <Feather
-            name={isLocked ? 'lock' : 'book-open'}
+            name={getStatusIcon()}
             size={24}
-            color={colors.accent2}
+            color={isCompleted ? colors.success : isLocked ? colors.textSecondary : colors.accent2}
           />
         </View>
         <View style={styles.headerRight}>
-          <View style={[
-            styles.levelBadge,
-            { backgroundColor: getLevelColor().bg }
-          ]}>
-            <Text style={[
-              styles.levelText,
-              { color: getLevelColor().text }
-            ]}>
+          <View style={[styles.levelBadge, { backgroundColor: getLevelColor().bg }]}>
+            <Text style={[styles.levelText, { color: getLevelColor().text }]}>
               {lesson.level}
             </Text>
           </View>
@@ -81,6 +88,18 @@ const LessonCard = ({ lesson, onStartLesson }) => {
                 </Text>
               </View>
             ))}
+          </View>
+        )}
+
+        {/* Status Badge */}
+        {(isCompleted || isAttempted) && (
+          <View style={[
+            styles.statusBadge,
+            { backgroundColor: isCompleted ? colors.success : colors.warning }
+          ]}>
+            <Text style={[styles.statusText, { color: colors.textLight }]}>
+              {isCompleted ? 'Completed' : 'In Progress'}
+            </Text>
           </View>
         )}
 
@@ -189,6 +208,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginTop: 12,
+    marginBottom: 8
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '600'
+  }
 });
 
 export default LessonCard;

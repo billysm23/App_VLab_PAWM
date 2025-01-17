@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeColors } from '../components/theme';
+import ThemeToggle from '../components/ThemeToggle';
 import { useTheme } from '../contexts/ThemeContext';
 import { getQuizByLessonId, submitQuizResult } from '../services/api';
 
@@ -180,10 +181,7 @@ const QuizDetailScreen = ({ route, navigation }) => {
         <Text style={[styles.headerTitle, { color: colors.text }]}>
           {quiz?.lesson_title} Quiz
         </Text>
-        
-        <Text style={[styles.progress, { color: colors.textSecondary }]}>
-          {currentQuestionIndex + 1}/{quiz?.questions.length}
-        </Text>
+        <ThemeToggle/>
       </View>
 
       <ScrollView 
@@ -192,10 +190,10 @@ const QuizDetailScreen = ({ route, navigation }) => {
       >
         {/* Question */}
         <View style={[styles.questionCard, { backgroundColor: colors.cardBackground }]}>
-          <Text style={[styles.questionNumber, { color: colors.textSecondary }]}>
+          <Text style={[styles.questionNumber, { color: colors.textReverse }]}>
             Question {currentQuestionIndex + 1}
           </Text>
-          <Text style={[styles.questionText, { color: colors.text }]}>
+          <Text style={[styles.questionText, { color: colors.textReverse2 }]}>
             {currentQuestion?.question_text}
           </Text>
 
@@ -308,9 +306,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-  },
-  progress: {
-    fontSize: 16,
+    marginRight: 50,
   },
   content: {
     flex: 1,
