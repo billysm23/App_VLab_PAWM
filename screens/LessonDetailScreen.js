@@ -150,7 +150,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
         { 
           color: activeTab === name 
             ? '#ffffff'
-            : (theme === 'dark' ? '#D8EAFF' : '#475569')
+            : (theme === 'dark' ? '#D8EAFF' : '#213652FF')
         }
       ]}>
         {label}
@@ -170,13 +170,13 @@ const LessonDetailScreen = ({ route, navigation }) => {
               { 
                 backgroundColor: theme === 'dark' 
                   ? 'rgba(255, 255, 255, 0.1)' 
-                  : '#98D1FFFF' 
+                  : '#B0DAFDFF' 
               }
             ]}>
                 <Feather name="check-circle" size={20} color={theme === 'dark' ? '#60a5fa' : '#003181FF'} />
                 <Text style={[
                   styles.objectiveText,
-                  { color: theme === 'dark' ? '#D8EAFF' : '#475569' }
+                  { color: theme === 'dark' ? '#D8EAFF' : '#213652FF' }
                 ]}>
                   {objective}
                 </Text>
@@ -190,12 +190,12 @@ const LessonDetailScreen = ({ route, navigation }) => {
                 { 
                   backgroundColor: theme === 'dark' 
                     ? 'rgba(255, 255, 255, 0.1)' 
-                    : '#98D1FFFF' 
+                    : '#B0DAFDFF' 
                 }
               ]}>
                 <Feather name="arrow-right" size={20} color={theme === 'dark' ? '#60a5fa' : '#003181FF'} />
                 <Text style={[styles.prerequisiteText,
-                  { color: theme === 'dark' ? '#D8EAFF' : '#475569' }
+                  { color: theme === 'dark' ? '#D8EAFF' : '#213652FF' }
                 ]}>
                   {prerequisite}
                 </Text>
@@ -211,7 +211,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
                 { 
                   backgroundColor: theme === 'dark' 
                     ? 'rgba(255, 255, 255, 0.1)' 
-                    : '#98D1FFFF' 
+                    : '#B0DAFDFF' 
                 }
               ]}>
                 <Text style={styles.topicIcon}>{topic.icon}</Text>
@@ -232,7 +232,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
                 { 
                   backgroundColor: theme === 'dark' 
                     ? 'rgba(255, 255, 255, 0.1)' 
-                    : '#98D1FFFF' 
+                    : '#B0DAFDFF' 
                 }
               ]}>
                 <Text style={[styles.conceptTitle, { color: theme === 'dark' ? '#ffffff' : '#182E4BFF' }]}>

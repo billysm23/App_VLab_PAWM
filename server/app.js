@@ -5,7 +5,8 @@ const { helmetConfig, rateLimitConfig, authLimiter } = require('./middleware/sec
 const authRoutes = require('./routes/authRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const ErrorCodes = require('./utils/errors/errorCodes');
-const lessonRoutes = require('./routes/lessonRoutes')
+const lessonRoutes = require('./routes/lessonRoutes');
+const quizRoutes = require('./routes/quizRoutes');
 
 const app = express();
 
@@ -52,7 +53,8 @@ app.use(helmetConfig);
 app.use(rateLimitConfig);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
-app.use('/api/lessons', lessonRoutes);
+app.use('/api/lesson', lessonRoutes);
+app.use('/api/quiz', quizRoutes);
 
 // Health
 app.get('/health', (req, res) => {

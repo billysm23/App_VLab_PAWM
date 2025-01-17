@@ -10,9 +10,11 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ComingSoonScreen from './screens/ComingSoonScreen';
 import HomeScreen from './screens/HomeScreen';
 import LessonDetailScreen from './screens/LessonDetailScreen';
-import LessonsScreen from './screens/LessonScreen';
+import LessonScreen from './screens/LessonScreen';
 import LoginScreen from './screens/LoginScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import QuizDetailScreen from './screens/QuizDetailScreen';
+import QuizScreen from './screens/QuizScreen';
 import RegisterScreen from './screens/RegisterScreen';
 
 const Stack = createStackNavigator();
@@ -108,12 +110,22 @@ export default function App() {
             />
             <Stack.Screen 
               name="Lessons" 
-              component={LessonsScreen}
+              component={LessonScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen 
               name="LessonDetail" 
               component={LessonDetailScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="Quiz" 
+              component={QuizScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="QuizDetail" 
+              component={QuizDetailScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen 

@@ -9,7 +9,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { getAllLessons } from '../services/api';
 import { getToken } from '../services/storage';
 
-const LessonsScreen = () => {
+const LessonScreen = () => {
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -128,4 +128,4 @@ const LessonsScreen = () => {
   );
 };
 
-export default LessonsScreen;
+export default LessonScreen;
