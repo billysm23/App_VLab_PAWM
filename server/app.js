@@ -15,6 +15,8 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 const allowedOrigins = [
     'exp://192.168.8.244:8081',
     'http://192.168.8.244:8081',
+    'exp://192.168.104.98:8081',
+    'http:/192.168.104.98:8081',
     'exp+snack-a3671658-b537-45dd-9072-884041931614://*',
     'vlabpawm://*'
 ];
